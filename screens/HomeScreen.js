@@ -1,5 +1,6 @@
 import API from '../constants/Api';
 import Colors from '../constants/Colors';
+import Layout from '../constants/Layout';
 import React from 'react';
 import { ActivityIndicator, FlatList, Platform, StyleSheet, Tile, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { Notifications, WebBrowser } from 'expo';
@@ -83,7 +84,7 @@ export default class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 24,
+    marginTop: Layout.mainStatusBarHeight,
     backgroundColor: Colors.background,
   },
   loadingContainer: {

@@ -1,11 +1,12 @@
 import API from '../constants/Api';
 import Colors from '../constants/Colors';
+import Layout from '../constants/Layout';
 import React from 'react';
 import { AsyncStorage, Platform, ScrollView, Slider, StyleSheet, Switch, Text, ToastAndroid, View } from 'react-native';
 
 export default class SettingsScreen extends React.Component {
   static navigationOptions = {
-    title: 'Settings',
+    header: null,
   };
 
   constructor(props) {
@@ -56,62 +57,55 @@ export default class SettingsScreen extends React.Component {
   render() {
     return (
       <ScrollView style={styles.container}>
-        <View style={styles.settingsContainer}>
-          <View style={styles.notificationSwitchContainer}>
-            <Text style={styles.textLabel}>Enable notifications</Text>
-            <Switch
-              disabled={this.state.settingsDisabled}
-              value={this.state.settings.notificationsEnabled}
-              onValueChange={this.onNotificationsEnabledChange}
-            />
-          </View>
-
-          <View style={styles.separator}/>
-
-          <View style={[styles.sliderLabelContainer, styles.mt10]}>
-            <Text style={this.state.settings.notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-              Minimum price
-            </Text>
-            <Text style={this.state.settings.notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-              {this.state.minPriceForLabel !== 0 ? this.state.minPriceForLabel.toString() + ' Kč' : ''}
-            </Text>
-          </View>
-          <Slider
-            style={styles.slider}
-            disabled={!this.state.settings.notificationsEnabled || this.state.settingsDisabled}
-            minimumValue={0}
-            maximumValue={5000000}
-            step={100000}
-            value={this.state.minPriceForLabel}
-            onValueChange={this.onMinPriceChange}
-            onSlidingComplete={this.onMinPriceChangeComplete}
+        <View style={styles.notificationSwitchContainer}>
+          <Text style={styles.textLabel}>Enable notifications</Text>
+          <Switch
+            disabled={this.state.settingsDisabled}
+            value={this.state.settings.notificationsEnabled}
+            onValueChange={this.onNotificationsEnabledChange}
           />
-          <View style={[styles.sliderLabelContainer, styles.mt10]}>
-            <Text style={this.state.settings.notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-              Maximum price
-            </Text>
-            <Text style={this.state.settings.notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-              {this.state.maxPriceForLabel !== 0 ? this.state.maxPriceForLabel.toString() + ' Kč' : ''}
-            </Text>
-          </View>
-          <Slider
-            style={styles.slider}
-            disabled={!this.state.settings.notificationsEnabled || this.state.settingsDisabled}
-            minimumValue={0}
-            maximumValue={5000000}
-            step={100000}
-            value={this.state.maxPriceForLabel}
-            onValueChange={this.onMaxPriceChange}
-            onSlidingComplete={this.onMaxPriceChangeComplete}
-          />
-          <View style={[styles.dispositionContainer, styles.mt20]}>
-            <Text style={this.state.settings.notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-              Disposition
-            </Text>
-          </View>
-          <View style={styles.dispositionContainer}>
-            { this.renderDispositionSettings() }
-          </View>
+        </View>
+
+        <View style={styles.separator}/>
+
+        <View style={styles.sliderLabelContainer}>
+          <Text style={this.state.settings.notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+            Minimum price
+          </Text>
+          <Text style={this.state.settings.notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+            {this.state.minPriceForLabel !== 0 ? this.state.minPriceForLabel.toString() + ' Kč' : ''}
+          </Text>
+        </View>
+        <Slider
+          style={styles.slider}
+          disabled={!this.state.settings.notificationsEnabled || this.state.settingsDisabled}
+          minimumValue={0}
+          maximumValue={5000000}
+          step={100000}
+          value={this.state.minPriceForLabel}
+          onValueChange={this.onMinPriceChange}
+          onSlidingComplete={this.onMinPriceChangeComplete}
+        />
+        <View style={styles.sliderLabelContainer}>
+          <Text style={this.state.settings.notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+            Maximum price
+          </Text>
+          <Text style={this.state.settings.notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+            {this.state.maxPriceForLabel !== 0 ? this.state.maxPriceForLabel.toString() + ' Kč' : ''}
+          </Text>
+        </View>
+        <Slider
+          style={styles.slider}
+          disabled={!this.state.settings.notificationsEnabled || this.state.settingsDisabled}
+          minimumValue={0}
+          maximumValue={5000000}
+          step={100000}
+          value={this.state.maxPriceForLabel}
+          onValueChange={this.onMaxPriceChange}
+          onSlidingComplete={this.onMaxPriceChangeComplete}
+        />
+        <View style={styles.dispositionContainer}>
+          { this.renderDispositionSettings() }
         </View>
       </ScrollView>
     );
@@ -232,66 +226,58 @@ export default class SettingsScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 15,
+    marginTop: Layout.mainStatusBarHeight,
+    paddingTop: Math.round(Layout.sideMargin / 2),
     backgroundColor: Colors.background,
-  },
-  settingsContainer: {
   },
   notificationSwitchContainer: {
     flex: 1,
-    marginLeft: 15,
-    marginRight: 15,
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   sliderLabelContainer: {
     flex: 1,
-    marginLeft: 15,
-    marginRight: 15,
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   slider: {
-    borderRadius: 150,
+    marginBottom: Math.round(Layout.sideMargin / 2),
   },
   dispositionContainer: {
     flex: 1,
-    width: 360,
-    marginLeft: 15,
-    marginRight: 15,
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
     flexDirection: 'row',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
   },
   dispositionSwitchContainer: {
-    width: 100,
+    width: Math.round((Layout.width - (2 * Layout.sideMargin)) / 3) - Layout.sideMargin,
     marginTop: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   textLabel: {
-    fontSize: 18,
+    fontSize: Layout.labelFontSize,
     color: Colors.text,
   },
   textLabelDisabled: {
-    fontSize: 18,
+    fontSize: Layout.labelFontSize,
     color: Colors.textDisabled,
   },
   text: {
     color: Colors.text,
   },
   separator: {
-    borderWidth: 0.2,
+    borderWidth: 0.3,
     borderColor: Colors.text,
-    marginLeft: 15,
-    marginRight: 25,
-    marginTop: 15,
-    marginBottom: 15,
-  },
-  mt10: {
-    marginTop: 10,
-  },
-  mt20: {
-    marginTop: 20,
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
+    marginTop: Math.round(Layout.sideMargin / 2),
+    marginBottom: Math.round(Layout.sideMargin / 2),
   },
 });

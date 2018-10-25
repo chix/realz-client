@@ -1,5 +1,6 @@
 import API from '../constants/Api';
 import Colors from '../constants/Colors';
+import Layout from '../constants/Layout';
 import React from 'react';
 import { ActivityIndicator, Button, Linking, Image, Platform, ScrollView, StyleSheet, Text, ToastAndroid, View } from 'react-native';
 import { Notifications, WebBrowser } from 'expo';
@@ -35,14 +36,17 @@ export default class AdDetailScreen extends React.Component {
         <Text style={styles.headerText}>{data.title}</Text>
         <Text style={styles.subheaderText}>{data.property.location.street}</Text>
         <Text style={styles.subheaderText}>
-          {data.price !== null ? data.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč' : ''}
+          {(data.price !== undefined && data.price !== null) ? data.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč' : ''}
         </Text>
         <View style={styles.imageContainer}>
           { this.renderImages() }
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.text}>{data.description}</Text>
+          <View style={styles.spacer}/>
           <Button color={Colors.button} title={'Otevřít na '+data.source.name} onPress={this.onClick}/>
+          <View style={styles.spacer}/>
+          <View style={styles.spacer}/>
         </View>
       </ScrollView>
     );
@@ -92,8 +96,8 @@ export default class AdDetailScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 24,
-    paddingTop: 10,
+    marginTop: Layout.mainStatusBarHeight,
+    paddingTop: Math.round(Layout.sideMargin / 2),
     backgroundColor: Colors.background,
   },
   loadingContainer: {
@@ -102,41 +106,37 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     flex: 1,
+    marginTop: Math.round(Layout.sideMargin / 2),
     flexWrap: 'wrap',
     flexDirection: 'row',
     justifyContent: 'center',
   },
   image: {
-    width: 180,
-    height: 135,
+    width: Math.round(Layout.width / 2) - Layout.sideMargin - 3,
+    height: Math.round((Math.round(Layout.width / 2) - Layout.sideMargin - 3) / 4 * 3),
     resizeMode: 'contain',
     margin: 3,
   },
   textContainer: {
-    marginLeft: 22,
-    marginRight: 22,
-    marginTop: 10,
-    marginBottom: 30,
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
+    marginTop: Math.round(Layout.sideMargin / 2),
   },
   headerText: {
-    fontSize: 24,
+    fontSize: Layout.headerFontSize,
     color: Colors.text,
-    lineHeight: 30,
     textAlign: 'center',
   },
   subheaderText: {
-    fontSize: 18,
+    fontSize: Layout.subheaderFontSize,
     color: Colors.text,
-    lineHeight: 20,
     textAlign: 'center',
   },
   text: {
     color: Colors.text,
+    fontSize: Layout.normalFontSize,
   },
   spacer: {
-    height: 20,
-  },
-  mt10: {
-    marginTop: 10,
+    marginTop: Layout.sideMargin,
   },
 });

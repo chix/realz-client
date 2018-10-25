@@ -1,4 +1,5 @@
 import Colors from '../constants/Colors';
+import Layout from '../constants/Layout';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -13,7 +14,7 @@ export class AdItem extends React.Component {
           <View style={styles.headerContainer}>
             <Text style={styles.headerText}>{item.title}</Text>
             <Text style={styles.headerText}>
-              {(item.price !== null) ? item.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč' : ''}
+              {(item.price !== undefined && item.price !== null) ? item.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč' : ''}
             </Text>
           </View>
           <View style={styles.imageContainer}>
@@ -38,12 +39,12 @@ export class AdItem extends React.Component {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 20,
+    marginTop: Math.round(Layout.sideMargin / 2),
+    marginBottom: Math.round(Layout.sideMargin / 2),
   },
   headerContainer: {
     flex: 1,
-    width: 365,
+    width: Layout.width - (2 * Layout.sideMargin),
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -53,21 +54,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   image: {
-    width: 180,
-    height: 135,
+    width: Math.round(Layout.width / 2) - Layout.sideMargin - 3,
+    height: Math.round((Math.round(Layout.width / 2) - Layout.sideMargin - 3) / 4 * 3),
     resizeMode: 'contain',
     margin: 3,
   },
   headerText: {
-    fontSize: 18,
+    fontSize: Layout.subheaderFontSize,
     color: Colors.text,
-    lineHeight: 20,
     textAlign: 'center',
   },
   subheaderText: {
-    fontSize: 12,
+    fontSize: Layout.normalFontSize,
     color: Colors.text,
-    lineHeight: 16,
     textAlign: 'center',
   },
 });
