@@ -1,4 +1,5 @@
 import API from '../constants/Api';
+import Cities from '../constants/Cities';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 import React from 'react';
@@ -14,29 +15,37 @@ export default class SettingsScreen extends React.Component {
 
     this.state = {
       settingsDisabled: true,
-      minPriceForLabel: 0,
-      maxPriceForLabel: 0,
+      minPriceForLabel: {
+        [Cities.brno.code]: 0,
+      },
+      maxPriceForLabel: {
+        [Cities.brno.code]: 0,
+      },
       settings: {
         notificationsEnabled: false,
-        minPrice: 0,
-        maxPrice: 0,
-        disposition: {
-          '1': false,
-          '1+kk': false,
-          '1+1': false,
-          '2+kk': false,
-          '2+1': false,
-          '3+kk': false,
-          '3+1': false,
-          '4+kk': false,
-          '4+1': false,
-          '5+kk': false,
-          '5+1': false,
-          '6+': false,
-          'other': false,
-        }
+        [Cities.brno.code]: {
+          enabled: false,
+          minPrice: 0,
+          maxPrice: 0,
+          disposition: {
+            '1': false,
+            '1+kk': false,
+            '1+1': false,
+            '2+kk': false,
+            '2+1': false,
+            '3+kk': false,
+            '3+1': false,
+            '4+kk': false,
+            '4+1': false,
+            '5+kk': false,
+            '5+1': false,
+            '6+': false,
+            'other': false,
+          },
+          cityDistrict: Cities.brno.districtsettings,
+        },
       },
-    }
+    };
 
     AsyncStorage.getItem('@Notifications:'+this.props.screenProps.expoToken)
     .then((settings) => {
@@ -44,8 +53,8 @@ export default class SettingsScreen extends React.Component {
         const parsedSettings = this.getSettings(JSON.parse(settings));
         this.setState({
           settingsDisabled: false,
-          minPriceForLabel: parsedSettings.minPrice,
-          maxPriceForLabel: parsedSettings.maxPrice,
+          minPriceForLabel: {[Cities.brno.code]: parsedSettings[Cities.brno.code].minPrice},
+          maxPriceForLabel: {[Cities.brno.code]: parsedSettings[Cities.brno.code].maxPrice},
           settings: parsedSettings,
         });
       } else {
@@ -55,73 +64,118 @@ export default class SettingsScreen extends React.Component {
   }
 
   render() {
+    const settings = this.state.settings;
+    const settingsEnabled = !this.state.settingsDisabled;
+    const notificationsEnabled = settingsEnabled && settings.notificationsEnabled;
+    const brnoSettings = this.state.settings[Cities.brno.code];
+    const brnoSettingsEnabled = notificationsEnabled && brnoSettings.enabled;
+    const minPriceForLabel = this.state.minPriceForLabel;
+    const maxPriceForLabel = this.state.maxPriceForLabel;
+
     return (
       <ScrollView style={styles.container}>
         <View style={styles.notificationSwitchContainer}>
-          <Text style={styles.textLabel}>Enable notifications</Text>
+          <Text style={settingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+            Enable notifications
+          </Text>
+          <Text style={styles.textLabel}></Text>
           <Switch
-            disabled={this.state.settingsDisabled}
-            value={this.state.settings.notificationsEnabled}
+            disabled={!settingsEnabled}
+            value={settings.notificationsEnabled}
             onValueChange={this.onNotificationsEnabledChange}
           />
         </View>
 
         <View style={styles.separator}/>
 
-        <View style={styles.sliderLabelContainer}>
-          <Text style={this.state.settings.notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-            Minimum price
+        <View style={styles.citySwitchContainer}>
+          <Text style={notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+            Brno
           </Text>
-          <Text style={this.state.settings.notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-            {this.state.minPriceForLabel !== 0 ? this.state.minPriceForLabel.toString() + ' Kč' : ''}
-          </Text>
+          <Switch
+            disabled={!notificationsEnabled}
+            value={settings[Cities.brno.code].enabled}
+            onValueChange={(value) => this.onCityEnabledChange(Cities.brno.code, value)}
+          />
         </View>
-        <Slider
-          style={styles.slider}
-          disabled={!this.state.settings.notificationsEnabled || this.state.settingsDisabled}
-          minimumValue={0}
-          maximumValue={5000000}
-          step={100000}
-          value={this.state.minPriceForLabel}
-          onValueChange={this.onMinPriceChange}
-          onSlidingComplete={this.onMinPriceChangeComplete}
-        />
-        <View style={styles.sliderLabelContainer}>
-          <Text style={this.state.settings.notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-            Maximum price
-          </Text>
-          <Text style={this.state.settings.notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-            {this.state.maxPriceForLabel !== 0 ? this.state.maxPriceForLabel.toString() + ' Kč' : ''}
-          </Text>
-        </View>
-        <Slider
-          style={styles.slider}
-          disabled={!this.state.settings.notificationsEnabled || this.state.settingsDisabled}
-          minimumValue={0}
-          maximumValue={5000000}
-          step={100000}
-          value={this.state.maxPriceForLabel}
-          onValueChange={this.onMaxPriceChange}
-          onSlidingComplete={this.onMaxPriceChangeComplete}
-        />
-        <View style={styles.dispositionContainer}>
-          { this.renderDispositionSettings() }
+        <View style={brnoSettingsEnabled ? {marginTop: Math.round(Layout.sideMargin / 2)} : {height: 0}}>
+          <View style={styles.sliderLabelContainer}>
+            <Text style={brnoSettingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+              Minimum price
+            </Text>
+            <Text style={brnoSettingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+              {minPriceForLabel[Cities.brno.code] !== 0 ? minPriceForLabel[Cities.brno.code].toString() + ' Kč' : ''}
+            </Text>
+          </View>
+          <Slider
+            style={styles.slider}
+            disabled={!brnoSettingsEnabled}
+            minimumValue={0}
+            maximumValue={5000000}
+            step={100000}
+            value={minPriceForLabel[Cities.brno.code]}
+            onValueChange={(value) => this.onMinPriceChange(Cities.brno.code, value)}
+            onSlidingComplete={(value) => this.onMinPriceChangeComplete(Cities.brno.code, value)}
+          />
+          <View style={styles.sliderLabelContainer}>
+            <Text style={brnoSettingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+              Maximum price
+            </Text>
+            <Text style={brnoSettingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+              {maxPriceForLabel[Cities.brno.code] !== 0 ? maxPriceForLabel[Cities.brno.code].toString() + ' Kč' : ''}
+            </Text>
+          </View>
+          <Slider
+            style={styles.slider}
+            disabled={!brnoSettingsEnabled || !settingsEnabled}
+            minimumValue={0}
+            maximumValue={5000000}
+            step={100000}
+            value={maxPriceForLabel[Cities.brno.code]}
+            onValueChange={(value) => this.onMaxPriceChange(Cities.brno.code, value)}
+            onSlidingComplete={(value) => this.onMaxPriceChangeComplete(Cities.brno.code, value)}
+          />
+          <View style={styles.dispositionContainer}>
+            { this.renderDispositionSettings(Cities.brno.code) }
+          </View>
+          <View style={styles.cityDistrictContainer}>
+            { this.renderCityDistrictSettings(Cities.brno.code) }
+          </View>
         </View>
       </ScrollView>
     );
   }
 
-  renderDispositionSettings = () => {
-    const { disposition } = this.state.settings;
+  renderDispositionSettings = (cityCode) => {
+    const { disposition } = this.state.settings[cityCode];
+    const enabled = !this.state.settingsDisabled && this.state.settings.notificationsEnabled && this.state.settings[cityCode].enabled;
 
     return Object.keys(disposition).map((key) => {
       return (
         <View style={styles.dispositionSwitchContainer} key={key}>
-          <Text style={this.state.settings.notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>{key}</Text>
+          <Text style={enabled ? styles.textLabel : styles.textLabelDisabled}>{key}</Text>
           <Switch
-            disabled={!this.state.settings.notificationsEnabled || this.state.settingsDisabled}
+            disabled={!enabled}
             value={disposition[key]}
-            onValueChange={(value) => {this.onDispositionEnabledChange(key, value)}}
+            onValueChange={(value) => {this.onDispositionEnabledChange(cityCode, key, value)}}
+          />
+        </View>
+      );
+    });
+  }
+
+  renderCityDistrictSettings = (cityCode) => {
+    const { cityDistrict } = this.state.settings[cityCode];
+    const enabled = !this.state.settingsDisabled && this.state.settings.notificationsEnabled && this.state.settings[cityCode].enabled;
+
+    return Object.keys(cityDistrict).map((key) => {
+      return (
+        <View style={styles.cityDistrictSwitchContainer} key={key}>
+          <Text style={enabled ? styles.textLabel : styles.textLabelDisabled}>{Cities.brno.districts[key]}</Text>
+          <Switch
+            disabled={!enabled}
+            value={cityDistrict[key]}
+            onValueChange={(value) => {this.onCityDistrictEnabledChange(cityCode, key, value)}}
           />
         </View>
       );
@@ -132,63 +186,94 @@ export default class SettingsScreen extends React.Component {
     this.persistSettings({notificationsEnabled: value});
   }
 
-  onMinPriceChange = (value) => {
-    this.setState({minPriceForLabel: value});
+  onCityEnabledChange = (cityCode, value) => {
+    const settings = JSON.parse(JSON.stringify(this.getSettings()));
+    settings[cityCode].enabled = value;
+    this.persistSettings(settings);
   }
 
-  onMinPriceChangeComplete = (value) => {
+  onMinPriceChange = (cityCode, value) => {
+    const minPriceForLabelSettings = JSON.parse(JSON.stringify(this.state.minPriceForLabel));
+    minPriceForLabelSettings[cityCode] = value;
+    this.setState({minPriceForLabel: minPriceForLabelSettings});
+  }
+
+  onMinPriceChangeComplete = (cityCode, value) => {
     clearTimeout(this.minPriceSliderTimeoutId)
     this.minPriceSliderTimeoutId = setTimeout(() => {
-      this.persistSettings({minPrice: value});
+      const settings = JSON.parse(JSON.stringify(this.getSettings()));
+      settings[cityCode].minPrice = value;
+      this.persistSettings(settings);
     }, 50)
   }
 
-  onMaxPriceChange = (value) => {
-    this.setState({maxPriceForLabel: value});
+  onMaxPriceChange = (cityCode, value) => {
+    const maxPriceForLabelSettings = JSON.parse(JSON.stringify(this.state.maxPriceForLabel));
+    maxPriceForLabelSettings[cityCode] = value;
+    this.setState({maxPriceForLabel: maxPriceForLabelSettings});
   }
 
-  onMaxPriceChangeComplete = (value) => {
+  onMaxPriceChangeComplete = (cityCode, value) => {
     clearTimeout(this.maxPriceSliderTimeoutId)
     this.maxPriceSliderTimeoutId = setTimeout(() => {
-      this.persistSettings({maxPrice: value});
+      const settings = JSON.parse(JSON.stringify(this.getSettings()));
+      settings[cityCode].maxPrice = value;
+      this.persistSettings(settings);
     }, 50)
   }
 
-  onDispositionEnabledChange = (disposition, value) => {
+  onDispositionEnabledChange = (cityCode, disposition, value) => {
     const settings = JSON.parse(JSON.stringify(this.getSettings()));
-    settings.disposition[disposition] = value;
+    settings[cityCode].disposition[disposition] = value;
+    this.persistSettings(settings);
+  }
+
+  onCityDistrictEnabledChange = (cityCode, cityDistrict, value) => {
+    const settings = JSON.parse(JSON.stringify(this.getSettings()));
+    settings[cityCode].cityDistrict[cityDistrict] = value;
     this.persistSettings(settings);
   }
 
   getSettings = (newSettings) => {
     let settings = this.state.settings;
-    if (settings !== undefined) {
+    if (newSettings !== undefined) {
       settings = {...this.state.settings, ...newSettings};
     }
     return settings;
   }
 
   persistSettings = async (newSettings) => {
-    const filter = {};
+    const brnoFilters = {};
     const settings = this.getSettings(newSettings);
+    const brnoSettings = settings[Cities.brno.code];
+    let filters = {};
 
-    if (settings.minPrice !== 0) {
-      if (filter.price === undefined) {
-        filter.price = {};
+    if (brnoSettings.enabled) {
+      if (brnoSettings.minPrice !== 0) {
+        if (brnoFilters.price === undefined) {
+          brnoFilters.price = {};
+        }
+        brnoFilters.price.gte = brnoSettings.minPrice;
       }
-      filter.price.gte = settings.minPrice;
-    }
-    if (settings.maxPrice !== 0) {
-      if (filter.price === undefined) {
-        filter.price = {};
+      if (brnoSettings.maxPrice !== 0) {
+        if (brnoFilters.price === undefined) {
+          brnoFilters.price = {};
+        }
+        brnoFilters.price.lte = brnoSettings.maxPrice;
       }
-      filter.price.lte = settings.maxPrice;
+      brnoFilters.disposition = Object.keys(brnoSettings.disposition).filter((key) => {
+        return brnoSettings.disposition[key];
+      }).map((key) => {
+        return key;
+      });
+      brnoFilters.cityDistrict = Object.keys(brnoSettings.cityDistrict).filter((key) => {
+        return brnoSettings.cityDistrict[key];
+      }).map((key) => {
+        return key;
+      });
+      filters[Cities.brno.code] = brnoFilters;
     }
-    filter.disposition = Object.keys(settings.disposition).filter((key) => {
-      return settings.disposition[key];
-    }).map((key) => {
-      return key;
-    });
+
     return fetch(API.host+'/api/push-notification-token', {
       method: 'POST',
       headers: {
@@ -198,7 +283,7 @@ export default class SettingsScreen extends React.Component {
       body: JSON.stringify({
         token: this.props.screenProps.expoToken,
         enabled: settings.notificationsEnabled,
-        filter: filter,
+        filters: filters,
       }),
     })
     .then(() => {
@@ -211,9 +296,13 @@ export default class SettingsScreen extends React.Component {
       });
     })
     .catch(() => {
+      const minPriceForLabelSettings = JSON.parse(JSON.stringify(this.state.minPriceForLabel));
+      const maxPriceForLabelSettings = JSON.parse(JSON.stringify(this.state.maxPriceForLabel));
+      minPriceForLabelSettings[Cities.brno.code] = this.state.settings[Cities.brno.code].minPrice;
+      maxPriceForLabelSettings[Cities.brno.code] = this.state.settings[Cities.brno.code].maxPrice;
       this.setState({
-        minPriceForLabel: this.state.settings.minPrice,
-        maxPriceForLabel: this.state.settings.maxPrice,
+        minPriceForLabel: minPriceForLabelSettings,
+        maxPriceForLabel: maxPriceForLabelSettings,
       }, () => {
         if (Platform.OS === 'android') {
           ToastAndroid.showWithGravity('Could not save settings, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
@@ -231,6 +320,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   notificationSwitchContainer: {
+    flex: 1,
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  citySwitchContainer: {
     flex: 1,
     marginLeft: Layout.sideMargin,
     marginRight: Layout.sideMargin,
@@ -257,6 +353,21 @@ const styles = StyleSheet.create({
   },
   dispositionSwitchContainer: {
     width: Math.round((Layout.width - (2 * Layout.sideMargin)) / 3) - Layout.sideMargin,
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  cityDistrictContainer: {
+    flex: 1,
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
+    marginBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+  },
+  cityDistrictSwitchContainer: {
+    width: Math.round((Layout.width - (2 * Layout.sideMargin)) / 2) - Layout.sideMargin,
     marginTop: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',

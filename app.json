@@ -5,7 +5,7 @@
     "slug": "realz-client",
     "privacy": "unlisted",
     "sdkVersion": "30.0.0",
-    "platforms": ["ios", "android"],
+    "platforms": ["android"],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -13,6 +13,10 @@
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
+    },
+    "notification": {
+      "icon": "./assets/images/icon.png",
+      "androidMode": "default"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
