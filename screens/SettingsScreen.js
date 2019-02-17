@@ -288,7 +288,7 @@ export default class SettingsScreen extends React.Component {
     })
     .then((response) => {
       if (response.ok === false) {
-        throw new Error();
+        throw new Error(response.statusText);
       }
       return AsyncStorage.setItem(
         '@Notifications:'+this.props.screenProps.expoToken,

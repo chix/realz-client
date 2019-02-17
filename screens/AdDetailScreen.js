@@ -85,7 +85,7 @@ export default class AdDetailScreen extends React.Component {
     return fetch(href)
       .then((response) => {
         if (response.ok === false) {
-          throw new Error();
+          throw new Error(response.statusText);
         }
         return response.json()
       })

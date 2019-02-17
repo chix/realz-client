@@ -53,7 +53,7 @@ export default class HomeScreen extends React.Component {
     return fetch(API.host+'/api/adverts')
       .then((response) => {
         if (response.ok === false) {
-          throw new Error();
+          throw new Error(response.statusText);
         }
         return response.json()
       })

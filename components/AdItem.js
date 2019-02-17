@@ -12,20 +12,28 @@ export class AdItem extends React.Component {
       <TouchableOpacity onPress={() => navigate('AdDetail', {id: item.id})}>
         <View style={styles.container}>
           <View style={styles.headerContainer}>
-            <Text style={styles.headerText}>{item.title}</Text>
+            <Text style={styles.headerText}>{(item.title.length > 28) ? item.title.substring(0, 28) + '...' : item.title}</Text>
             <Text style={styles.headerText}>
               {(item.price !== undefined && item.price !== null) ? item.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč' : ''}
             </Text>
           </View>
           <View style={styles.imageContainer}>
-            <Image
-              source={{uri: item.property.images[0].thumbnail}}
-              style={styles.image}
-            />
-            <Image
-              source={{uri: item.property.images[1].thumbnail}}
-              style={styles.image}
-            />
+            {
+              (item.property.images[0] !== undefined)
+              &&
+              <Image
+                source={{uri: item.property.images[0].thumbnail}}
+                style={styles.image}
+              />
+            }
+            {
+              (item.property.images[1] !== undefined)
+              &&
+              <Image
+                source={{uri: item.property.images[1].thumbnail}}
+                style={styles.image}
+              />
+            }
           </View>
           <View>
             <Text style={styles.subheaderText}>{item.property.location.street}</Text>
