@@ -51,19 +51,27 @@ export default class HomeScreen extends React.Component {
     this.setState({isLoading: true});
 
     return fetch(API.host+'/api/adverts')
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.ok === false) {
+          throw new Error();
+        }
+        return response.json()
+      })
       .then((responseJson) => {
-
         this.setState({
           isLoading: false,
           dataSource: responseJson,
         });
-
       })
       .catch(() => {
-        if (Platform.OS === 'android') {
-          ToastAndroid.showWithGravity('Could not fetch data, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
-        }
+        this.setState({
+          isLoading: false,
+          dataSource: [],
+        }, () => {
+          if (Platform.OS === 'android') {
+            ToastAndroid.showWithGravity('Could not fetch data, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
+          }
+        });
       });
   }
 

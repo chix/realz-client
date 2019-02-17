@@ -31,6 +31,13 @@ export default class AdDetailScreen extends React.Component {
     }
 
     const { data } = this.state;
+
+    if (data === null) {
+      return (
+        <View></View>
+      )
+    }
+
     return (
       <ScrollView style={styles.container}>
         <Text style={styles.headerText}>{data.title}</Text>
@@ -76,19 +83,27 @@ export default class AdDetailScreen extends React.Component {
     this.setState({isLoading: true});
 
     return fetch(href)
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.ok === false) {
+          throw new Error();
+        }
+        return response.json()
+      })
       .then((responseJson) => {
-
         this.setState({
           isLoading: false,
           data: responseJson,
         });
-
       })
       .catch(() =>{
-        if (Platform.OS === 'android') {
-          ToastAndroid.showWithGravity('Could not fetch data, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
-        }
+        this.setState({
+          isLoading: false,
+          data: null,
+        }, () => {
+          if (Platform.OS === 'android') {
+            ToastAndroid.showWithGravity('Could not fetch data, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
+          }
+        });
       });
   }
 }

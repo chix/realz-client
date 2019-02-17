@@ -286,7 +286,10 @@ export default class SettingsScreen extends React.Component {
         filters: filters,
       }),
     })
-    .then(() => {
+    .then((response) => {
+      if (response.ok === false) {
+        throw new Error();
+      }
       return AsyncStorage.setItem(
         '@Notifications:'+this.props.screenProps.expoToken,
         JSON.stringify(settings)
