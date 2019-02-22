@@ -1,7 +1,7 @@
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export class AdItem extends React.Component {
   render() {
@@ -19,21 +19,30 @@ export class AdItem extends React.Component {
           </View>
           <View style={styles.imageContainer}>
             {
-              (item.property.images[0] !== undefined)
+              (item.source)
               &&
-              <Image
-                source={{uri: item.property.images[0].thumbnail}}
-                style={styles.image}
-              />
+              <Text style={styles.sourceBadge}>{item.source.name}</Text>
             }
-            {
-              (item.property.images[1] !== undefined)
-              &&
-              <Image
-                source={{uri: item.property.images[1].thumbnail}}
-                style={styles.image}
-              />
-            }
+            <ImageBackground source={require('../assets/images/placeholder.jpg')} style={styles.placeholder}>
+              {
+                (item.property.images[0] !== undefined)
+                &&
+                <Image
+                  source={{uri: item.property.images[0].thumbnail}}
+                  style={styles.image}
+                />
+              }
+            </ImageBackground>      
+            <ImageBackground source={require('../assets/images/placeholder.jpg')} style={styles.placeholder}>
+              {
+                (item.property.images[1] !== undefined)
+                &&
+                <Image
+                  source={{uri: item.property.images[1].thumbnail}}
+                  style={styles.image}
+                />
+              }
+            </ImageBackground>      
           </View>
           <View>
             <Text style={styles.subheaderText}>{item.property.location.street}</Text>
@@ -61,10 +70,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
+  sourceBadge: {
+    position: 'absolute',
+    right: 3,
+    top: 15,
+    paddingTop: 3,
+    paddingBottom: 3,
+    paddingLeft: 8,
+    paddingRight: 8,
+    zIndex: 1,
+    color: Colors.badgeText,
+    backgroundColor: Colors.badgeBackground,
+  },
   image: {
     width: Math.round(Layout.width / 2) - Layout.sideMargin - 3,
     height: Math.round((Math.round(Layout.width / 2) - Layout.sideMargin - 3) / 4 * 3),
-    resizeMode: 'contain',
+    resizeMode: 'stretch',
+  },
+  placeholder: {
+    width: Math.round(Layout.width / 2) - Layout.sideMargin - 3,
+    height: Math.round((Math.round(Layout.width / 2) - Layout.sideMargin - 3) / 4 * 3),
     margin: 3,
   },
   headerText: {

@@ -2,7 +2,7 @@ import API from '../constants/Api';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 import React from 'react';
-import { ActivityIndicator, Button, Linking, Image, Platform, ScrollView, StyleSheet, Text, ToastAndroid, View } from 'react-native';
+import { ActivityIndicator, Button, Linking, Image, ImageBackground, Platform, ScrollView, StyleSheet, Text, ToastAndroid, View } from 'react-native';
 import { Notifications, WebBrowser } from 'expo';
 
 export default class AdDetailScreen extends React.Component {
@@ -70,11 +70,12 @@ export default class AdDetailScreen extends React.Component {
 
     return data.property.images.map((image) => {
       return (
-        <Image
-          source={{uri: image.thumbnail}}
-          style={styles.image}
-          key={image.image}
-        />
+        <ImageBackground source={require('../assets/images/placeholder.jpg')} style={styles.placeholder} key={image.image}>
+          <Image
+            source={{uri: image.thumbnail}}
+            style={styles.image}
+          />
+        </ImageBackground>      
       );
     });
   }
@@ -129,7 +130,11 @@ const styles = StyleSheet.create({
   image: {
     width: Math.round(Layout.width / 2) - Layout.sideMargin - 3,
     height: Math.round((Math.round(Layout.width / 2) - Layout.sideMargin - 3) / 4 * 3),
-    resizeMode: 'contain',
+    resizeMode: 'stretch',
+  },
+  placeholder: {
+    width: Math.round(Layout.width / 2) - Layout.sideMargin - 3,
+    height: Math.round((Math.round(Layout.width / 2) - Layout.sideMargin - 3) / 4 * 3),
     margin: 3,
   },
   textContainer: {

@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
   },
   textLabelDisabled: {
     fontSize: Layout.labelFontSize,
-    color: Colors.textDisabled,
+    color: Colors.disabledText,
   },
   text: {
     color: Colors.text,
