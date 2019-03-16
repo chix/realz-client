@@ -3,7 +3,6 @@ import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 import React from 'react';
 import { ActivityIndicator, Button, Linking, Image, ImageBackground, Platform, ScrollView, StyleSheet, Text, ToastAndroid, View } from 'react-native';
-import { Notifications, WebBrowser } from 'expo';
 
 export default class AdDetailScreen extends React.Component {
   static navigationOptions = {

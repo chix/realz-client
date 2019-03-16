@@ -5,7 +5,7 @@ import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from
 
 export class AdItem extends React.Component {
   render() {
-    const { navigate, push } = this.props.navigation;
+    const { navigate } = this.props.navigation;
     const { item } = this.props;
 
     return (

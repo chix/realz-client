@@ -3,7 +3,7 @@ import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 import React from 'react';
 import { ActivityIndicator, FlatList, Platform, StyleSheet, Tile, ToastAndroid, TouchableOpacity, View } from 'react-native';
-import { Notifications, WebBrowser } from 'expo';
+import { Notifications } from 'expo';
 import { AdItem } from '../components/AdItem';
 
 export default class HomeScreen extends React.Component {
