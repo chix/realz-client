@@ -2,7 +2,15 @@ import API from '../constants/Api';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 import React from 'react';
-import { ActivityIndicator, FlatList, Platform, StyleSheet, Tile, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import {
+  AsyncStorage,
+  ActivityIndicator,
+  FlatList,
+  Platform,
+  StyleSheet,
+  ToastAndroid,
+  View
+} from 'react-native';
 import { Notifications } from 'expo';
 import { AdItem } from '../components/AdItem';
 
@@ -13,12 +21,40 @@ export default class HomeScreen extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { isLoading: true, dataSource: [] };
+    this.state = { isLoading: true, advertType: 'sale', dataSource: [] };
   }
 
   componentDidMount() {
+    const { navigation } = this.props;
+
     Notifications.addListener(this.handleNotification);
-    return this.fetchData();
+
+    this.focusListener = navigation.addListener("didFocus", () => {
+      AsyncStorage.getItem('@Setttings:main')
+      .then((settings) => {
+        if (settings !== null) {
+          const parsedSettings = JSON.parse(settings);
+          if (parsedSettings.advertType && this.state.advertType !== parsedSettings.advertType) {
+            this.setState({advertType: parsedSettings.advertType}, this.fetchData);
+          }
+        }
+      });
+    });
+
+    AsyncStorage.getItem('@Setttings:main')
+    .then((settings) => {
+      if (settings !== null) {
+        const parsedSettings = JSON.parse(settings);
+        if (parsedSettings.advertType) {
+          return this.setState({advertType: parsedSettings.advertType}, this.fetchData);
+        }
+      }
+      return this.fetchData();
+    });
+  }
+
+  componentWillUnmount() {
+    this.focusListener.remove();
   }
 
   render() {
@@ -50,7 +86,7 @@ export default class HomeScreen extends React.Component {
   fetchData = async () => {
     this.setState({isLoading: true});
 
-    return fetch(API.host+'/api/adverts')
+    return fetch(API.host+'/api/adverts/' + this.state.advertType)
       .then((response) => {
         if (response.ok === false) {
           throw new Error(response.statusText);

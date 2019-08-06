@@ -3,7 +3,18 @@ import Cities from '../constants/Cities';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 import React from 'react';
-import { AsyncStorage, Platform, ScrollView, Slider, StyleSheet, Switch, Text, ToastAndroid, View } from 'react-native';
+import {
+  AsyncStorage,
+  Picker,
+  Platform,
+  ScrollView,
+  Slider,
+  StyleSheet,
+  Switch,
+  Text,
+  ToastAndroid,
+  View
+} from 'react-native';
 
 export default class SettingsScreen extends React.Component {
   static navigationOptions = {
@@ -22,6 +33,7 @@ export default class SettingsScreen extends React.Component {
         [Cities.brno.code]: 0,
       },
       settings: {
+        advertType: 'sale',
         notificationsEnabled: false,
         [Cities.brno.code]: {
           enabled: false,
@@ -47,7 +59,7 @@ export default class SettingsScreen extends React.Component {
       },
     };
 
-    AsyncStorage.getItem('@Notifications:'+this.props.screenProps.expoToken)
+    AsyncStorage.getItem('@Setttings:main')
     .then((settings) => {
       if (settings !== null) {
         const parsedSettings = this.getSettings(JSON.parse(settings));
@@ -74,6 +86,24 @@ export default class SettingsScreen extends React.Component {
 
     return (
       <ScrollView style={styles.container}>
+        <View style={styles.advertTypePickerContainer}>
+          <Text style={settingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+            Advert type
+          </Text>
+          <Text style={styles.textLabel}></Text>
+          <Picker
+            disabled={!settingsEnabled}
+            selectedValue={settings.advertType}
+            onValueChange={this.onAdvertTypeChange}
+            style={styles.picker}
+          >
+            <Picker.Item label="Sale" value="sale" />
+            <Picker.Item label="Rent" value="rent" />
+          </Picker>
+        </View>
+
+        <View style={styles.separator}/>
+
         <View style={styles.notificationSwitchContainer}>
           <Text style={settingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
             Enable notifications
@@ -111,8 +141,8 @@ export default class SettingsScreen extends React.Component {
             style={styles.slider}
             disabled={!brnoSettingsEnabled}
             minimumValue={0}
-            maximumValue={5000000}
-            step={100000}
+            maximumValue={this.state.settings.advertType === 'sale' ? 5000000 : 50000}
+            step={this.state.settings.advertType === 'sale' ? 100000 : 1000}
             value={minPriceForLabel[Cities.brno.code]}
             onValueChange={(value) => this.onMinPriceChange(Cities.brno.code, value)}
             onSlidingComplete={(value) => this.onMinPriceChangeComplete(Cities.brno.code, value)}
@@ -129,8 +159,8 @@ export default class SettingsScreen extends React.Component {
             style={styles.slider}
             disabled={!brnoSettingsEnabled || !settingsEnabled}
             minimumValue={0}
-            maximumValue={5000000}
-            step={100000}
+            maximumValue={this.state.settings.advertType === 'sale' ? 5000000 : 50000}
+            step={this.state.settings.advertType === 'sale' ? 100000 : 1000}
             value={maxPriceForLabel[Cities.brno.code]}
             onValueChange={(value) => this.onMaxPriceChange(Cities.brno.code, value)}
             onSlidingComplete={(value) => this.onMaxPriceChangeComplete(Cities.brno.code, value)}
@@ -184,6 +214,10 @@ export default class SettingsScreen extends React.Component {
 
   onNotificationsEnabledChange = (value) => {
     this.persistSettings({notificationsEnabled: value});
+  }
+
+  onAdvertTypeChange = (value) => {
+    this.persistSettings({advertType: value});
   }
 
   onCityEnabledChange = (cityCode, value) => {
@@ -271,6 +305,7 @@ export default class SettingsScreen extends React.Component {
       }).map((key) => {
         return key;
       });
+      brnoFilters.advertType = settings.advertType;
       filters[Cities.brno.code] = brnoFilters;
     }
 
@@ -291,7 +326,7 @@ export default class SettingsScreen extends React.Component {
         throw new Error(response.statusText);
       }
       return AsyncStorage.setItem(
-        '@Notifications:'+this.props.screenProps.expoToken,
+        '@Setttings:main',
         JSON.stringify(settings)
       ).
       then(() => {
@@ -321,6 +356,13 @@ const styles = StyleSheet.create({
     marginTop: Layout.mainStatusBarHeight,
     paddingTop: Math.round(Layout.sideMargin / 2),
     backgroundColor: Colors.background,
+  },
+  advertTypePickerContainer: {
+    flex: 1,
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   notificationSwitchContainer: {
     flex: 1,
@@ -385,6 +427,11 @@ const styles = StyleSheet.create({
   },
   text: {
     color: Colors.text,
+  },
+  picker: {
+    height: 24,
+    width: 100,
+    color: Colors.text
   },
   separator: {
     borderWidth: 0.3,

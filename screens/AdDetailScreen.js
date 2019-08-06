@@ -50,7 +50,7 @@ export default class AdDetailScreen extends React.Component {
         <View style={styles.textContainer}>
           <Text style={styles.text}>{data.description}</Text>
           <View style={styles.spacer}/>
-          <Button color={Colors.button} title={'Otevřít na '+data.source.name} onPress={this.onClick}/>
+          <Button color={Colors.button} title={'View on '+data.source.name} onPress={this.onClick}/>
           <View style={styles.spacer}/>
           <View style={styles.spacer}/>
         </View>
