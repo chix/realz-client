@@ -6,7 +6,7 @@ import { ActivityIndicator, Button, Linking, Image, ImageBackground, Platform, S
 
 export default class AdDetailScreen extends React.Component {
   static navigationOptions = {
-    header: null,
+    headerShown: false,
   };
 
   constructor(props) {

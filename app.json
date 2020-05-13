@@ -4,8 +4,9 @@
     "description": "Realz client app.",
     "slug": "realz-client",
     "privacy": "unlisted",
-    "sdkVersion": "32.0.0",
-    "platforms": ["android"],
+    "platforms": [
+      "android"
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

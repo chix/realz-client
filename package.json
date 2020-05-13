@@ -13,18 +13,30 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@expo/samples": "2.1.1",
-    "expo": "^32.0.0",
-    "react": "16.5.0",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
-    "react-navigation": "^3.0.9"
+    "@expo/vector-icons": "^10.2.0",
+    "@react-native-community/masked-view": "^0.1.6",
+    "expo": "^37.0.0",
+    "expo-asset": "^8.1.5",
+    "expo-constants": "^9.0.0",
+    "expo-font": "^8.1.1",
+    "expo-permissions": "^8.1.0",
+    "react": "16.9.0",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-37.0.1.tar.gz",
+    "react-native-gesture-handler": "^1.6.1",
+    "react-native-reanimated": "^1.7.1",
+    "react-native-safe-area-context": "^0.7.3",
+    "react-native-safe-area-view": "^1.1.1",
+    "react-native-screens": "~2.2.0",
+    "react-native-svg": "^11.0.1",
+    "react-navigation": "^4.3.9",
+    "react-navigation-stack": "^2.5.0",
+    "react-navigation-tabs": "^2.8.13"
   },
   "devDependencies": {
-    "babel-preset-expo": "^5.0.0",
-    "jest-expo": "32.0.0",
-    "@types/expo": "^32.0.8",
-    "@types/react": "^16.8.8",
-    "@types/react-native": "^0.57.40",
-    "@types/react-navigation": "^3.0.5"
+    "@types/react": "^16.9.11",
+    "@types/react-native": "^0.60.22",
+    "@types/react-navigation": "^3.0.5",
+    "babel-preset-expo": "^8.1.0",
+    "jest-expo": "^37.0.0"
   }
 }

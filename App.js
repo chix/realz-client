@@ -1,7 +1,11 @@
 import AppNavigator from './navigation/AppNavigator';
 import React from 'react';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
-import { AppLoading, Asset, Font, Icon, Notifications, Permissions } from 'expo';
+import { AppLoading, Notifications } from 'expo';
+import { Asset } from 'expo-asset';
+import * as Font from 'expo-font';
+import * as Permissions from 'expo-permissions';
+import { Ionicons } from '@expo/vector-icons';
 
 export default class App extends React.Component {
   state = {
@@ -11,7 +15,7 @@ export default class App extends React.Component {
 
   componentDidMount() {
     if (Platform.OS === 'android') {
-      Expo.Notifications.createChannelAndroidAsync('new-listing', {
+      Notifications.createChannelAndroidAsync('new-listing', {
         name: 'New listing',
         priority: 'max',
         sound: true,
@@ -71,7 +75,7 @@ export default class App extends React.Component {
     return Promise.all([
       Font.loadAsync({
         // This is the font that we are using for our tab bar
-        ...Icon.Ionicons.font,
+        ...Ionicons.font,
         // We include SpaceMono because we use it in HomeScreen.js. Feel free
         // to remove this if you are not using it in your app
         'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),

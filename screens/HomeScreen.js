@@ -16,7 +16,7 @@ import { AdItem } from '../components/AdItem';
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
-    header: null,
+    headerShown: false,
   };
 
   constructor(props) {
@@ -112,12 +112,12 @@ export default class HomeScreen extends React.Component {
   }
 
   handleNotification = (notification) => {
-    const { navigate } = this.props.navigation;
+    const { push } = this.props.navigation;
 
     if (notification.origin === 'selected') {
       this.fetchData();
       if (notification.data.id) {
-        navigate('AdDetail', {id: notification.data.id});
+        push('AdDetail', {id: notification.data.id});
       } else {
         navigate('Home');
       }
