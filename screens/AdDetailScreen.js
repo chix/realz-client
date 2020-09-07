@@ -2,7 +2,22 @@ import API from '../constants/Api';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 import React from 'react';
-import { ActivityIndicator, Button, Linking, Image, ImageBackground, Platform, ScrollView, StyleSheet, Text, ToastAndroid, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Button,
+  Linking,
+  Image,
+  ImageBackground,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  ToastAndroid,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import ImageGallery from 'react-native-image-viewing';
 
 export default class AdDetailScreen extends React.Component {
   static navigationOptions = {
@@ -11,7 +26,7 @@ export default class AdDetailScreen extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { isLoading: true, data: null };
+    this.state = { isLoading: true, data: null, galleryVisible: false, galleryIndex: 0 };
   }
 
   componentDidMount() {
@@ -29,7 +44,7 @@ export default class AdDetailScreen extends React.Component {
       )
     }
 
-    const { data } = this.state;
+    const { data, galleryIndex, galleryVisible } = this.state;
 
     if (data === null) {
       return (
@@ -38,23 +53,32 @@ export default class AdDetailScreen extends React.Component {
     }
 
     return (
-      <ScrollView style={styles.container}>
-        <Text style={styles.headerText}>{data.title}</Text>
-        <Text style={styles.subheaderText}>{data.property.location.street}</Text>
-        <Text style={styles.subheaderText}>
-          {(data.price !== undefined && data.price !== null) ? data.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč' : ''}
-        </Text>
-        <View style={styles.imageContainer}>
-          { this.renderImages() }
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.text}>{data.description}</Text>
-          <View style={styles.spacer}/>
-          <Button color={Colors.button} title={'View on '+data.source.name} onPress={this.onClick}/>
-          <View style={styles.spacer}/>
-          <View style={styles.spacer}/>
-        </View>
-      </ScrollView>
+      <SafeAreaView style={styles.root}>
+        <ScrollView style={styles.container}>
+          <Text style={styles.headerText}>{data.title}</Text>
+          <Text style={styles.subheaderText}>{data.property.location.street}</Text>
+          <Text style={styles.subheaderText}>
+            {(data.price !== undefined && data.price !== null) ? data.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč' : ''}
+          </Text>
+          <View style={styles.imageContainer}>
+            { this.renderImageThumbnails() }
+          </View>
+          <View style={styles.textContainer}>
+            <Text style={styles.text}>{data.description}</Text>
+            <View style={styles.spacer}/>
+            <Button color={Colors.button} title={'View on '+data.source.name} onPress={this.onClick}/>
+            <View style={styles.spacer}/>
+            <View style={styles.spacer}/>
+          </View>
+        </ScrollView>
+        <ImageGallery
+          images={this.getGalleryImageUrls()}
+          imageIndex={galleryIndex}
+          visible={galleryVisible}
+          onRequestClose={this.onGalleryClose}
+          presentationStyle='overFullScreen'
+        />
+      </SafeAreaView>
     );
   }
 
@@ -64,19 +88,38 @@ export default class AdDetailScreen extends React.Component {
     Linking.openURL(data.external_url);
   }
 
-  renderImages = () => {
+  renderImageThumbnails = () => {
     const { data } = this.state;
 
-    return data.property.images.map((image) => {
+    return data.property.images.map((image, index) => {
       return (
         <ImageBackground source={require('../assets/images/placeholder.jpg')} style={styles.placeholder} key={image.image}>
-          <Image
-            source={{uri: image.thumbnail}}
-            style={styles.image}
-          />
+          <TouchableOpacity onPress={() => this.onGalleryOpen(index)}>
+            <Image
+              source={{uri: image.thumbnail}}
+              style={styles.image}
+              onPress={this.onGalleryOpen}
+            />
+          </TouchableOpacity>
         </ImageBackground>      
       );
     });
+  }
+
+  onGalleryOpen = (index) => {
+    this.setState({galleryIndex: index, galleryVisible: true});
+  }
+
+  getGalleryImageUrls = () => {
+    const { data } = this.state;
+
+    return data.property.images.map((image) => {
+      return { uri: image.image };
+    });
+  }
+
+  onGalleryClose = () => {
+    this.setState({galleryVisible: false});
   }
 
   fetchData = async (href) => {
@@ -109,6 +152,10 @@ export default class AdDetailScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
   container: {
     flex: 1,
     marginTop: Layout.mainStatusBarHeight,
