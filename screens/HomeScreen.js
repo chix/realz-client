@@ -86,29 +86,34 @@ export default class HomeScreen extends React.Component {
   fetchData = async () => {
     this.setState({isLoading: true});
 
-    return fetch(API.host+'/api/adverts/' + this.state.advertType)
-      .then((response) => {
-        if (response.ok === false) {
-          throw new Error(response.statusText);
-        }
-        return response.json()
-      })
-      .then((responseJson) => {
-        this.setState({
-          isLoading: false,
-          dataSource: responseJson,
-        });
-      })
-      .catch(() => {
-        this.setState({
-          isLoading: false,
-          dataSource: [],
-        }, () => {
-          if (Platform.OS === 'android') {
-            ToastAndroid.showWithGravity('Could not fetch data, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
-          }
-        });
+    return fetch(API.host+'/api/adverts?exists[deletedAt]=false&order[id]=desc&type.code=' + this.state.advertType, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    }).then((response) => {
+      if (response.ok === false) {
+        throw new Error(response.statusText);
+      }
+      return response.json()
+    })
+    .then((responseJson) => {
+      this.setState({
+        isLoading: false,
+        dataSource: responseJson,
       });
+    })
+    .catch(() => {
+      this.setState({
+        isLoading: false,
+        dataSource: [],
+      }, () => {
+        if (Platform.OS === 'android') {
+          ToastAndroid.showWithGravity('Could not fetch data, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
+        }
+      });
+    });
   }
 
   handleNotification = (notification) => {

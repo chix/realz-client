@@ -309,7 +309,7 @@ export default class SettingsScreen extends React.Component {
       filters[Cities.brno.code] = brnoFilters;
     }
 
-    return fetch(API.host+'/api/push-notification-token', {
+    return fetch(API.host+'/api/push_notification_tokens', {
       method: 'POST',
       headers: {
         Accept: 'application/json',

@@ -125,29 +125,34 @@ export default class AdDetailScreen extends React.Component {
   fetchData = async (href) => {
     this.setState({isLoading: true});
 
-    return fetch(href)
-      .then((response) => {
-        if (response.ok === false) {
-          throw new Error(response.statusText);
-        }
-        return response.json()
-      })
-      .then((responseJson) => {
-        this.setState({
-          isLoading: false,
-          data: responseJson,
-        });
-      })
-      .catch(() =>{
-        this.setState({
-          isLoading: false,
-          data: null,
-        }, () => {
-          if (Platform.OS === 'android') {
-            ToastAndroid.showWithGravity('Could not fetch data, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
-          }
-        });
+    return fetch(href, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    }).then((response) => {
+      if (response.ok === false) {
+        throw new Error(response.statusText);
+      }
+      return response.json()
+    })
+    .then((responseJson) => {
+      this.setState({
+        isLoading: false,
+        data: responseJson,
       });
+    })
+    .catch(() =>{
+      this.setState({
+        isLoading: false,
+        data: null,
+      }, () => {
+        if (Platform.OS === 'android') {
+          ToastAndroid.showWithGravity('Could not fetch data, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
+        }
+      });
+    });
   }
 }
 
