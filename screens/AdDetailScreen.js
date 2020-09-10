@@ -1,11 +1,11 @@
 import API from '../constants/Api';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
+import * as WebBrowser from 'expo-web-browser';
 import React from 'react';
 import {
   ActivityIndicator,
   Button,
-  Linking,
   Image,
   ImageBackground,
   Platform,
@@ -39,7 +39,7 @@ export default class AdDetailScreen extends React.Component {
     if (this.state.isLoading) {
       return (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large"/>
+          <ActivityIndicator size="large" color={Colors.tintColor}/>
         </View>
       )
     }
@@ -85,7 +85,7 @@ export default class AdDetailScreen extends React.Component {
   onClick = () => {
     const { data } = this.state;
 
-    Linking.openURL(data.external_url);
+    WebBrowser.openBrowserAsync(data.externalUrl);
   }
 
   renderImageThumbnails = () => {
@@ -170,6 +170,7 @@ const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
+    backgroundColor: Colors.background,
   },
   imageContainer: {
     flex: 1,

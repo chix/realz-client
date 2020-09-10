@@ -8,6 +8,7 @@
       "android"
     ],
     "version": "1.0.0",
+    "githubUrl": "https://github.com/chix/realz-client",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "splash": {
@@ -15,6 +16,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "primaryColor":"#ffffff",
     "notification": {
       "icon": "./assets/images/icon.png",
       "androidMode": "default"
@@ -31,7 +33,16 @@
     },
     "android": {
       "package": "cz.martinkuric.realz",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "useNextNotificationsApi": true,
+      "splash": {
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "androidStatusBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#ffffff",
+      "translucent": false
     }
   }
 }

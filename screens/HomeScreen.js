@@ -7,11 +7,12 @@ import {
   ActivityIndicator,
   FlatList,
   Platform,
+  RefreshControl,
   StyleSheet,
   ToastAndroid,
   View
 } from 'react-native';
-import { Notifications } from 'expo';
+import * as Notifications from 'expo-notifications';
 import { AdItem } from '../components/AdItem';
 
 export default class HomeScreen extends React.Component {
@@ -27,7 +28,7 @@ export default class HomeScreen extends React.Component {
   componentDidMount() {
     const { navigation } = this.props;
 
-    Notifications.addListener(this.handleNotification);
+    this.notificationResponseListener = Notifications.addNotificationResponseReceivedListener(this.handleNotification);
 
     this.focusListener = navigation.addListener("didFocus", () => {
       AsyncStorage.getItem('@Setttings:main')
@@ -55,13 +56,14 @@ export default class HomeScreen extends React.Component {
 
   componentWillUnmount() {
     this.focusListener.remove();
+    this.notificationResponseListener.remove();
   }
 
   render() {
     if (this.state.isLoading) {
       return (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large"/>
+          <ActivityIndicator size="large" color={Colors.tintColor}/>
         </View>
       )
     }
@@ -71,8 +73,15 @@ export default class HomeScreen extends React.Component {
           data={this.state.dataSource}
           renderItem={(item) => <AdItem navigation={this.props.navigation} {...item}/>}
           keyExtractor={(item) => item.id.toString()}
-          onRefresh={this.fetchData}
-          refreshing={this.state.isLoading}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.isLoading}
+              onRefresh={this.fetchData}
+              tintColor={Colors.backgroundColor}
+              titleColor={Colors.backgroundColor}
+              colors={[Colors.tintColor, Colors.tintColor, Colors.tintColor]}
+            />
+          }
         >
         </FlatList>
       </View>
@@ -116,13 +125,13 @@ export default class HomeScreen extends React.Component {
     });
   }
 
-  handleNotification = (notification) => {
-    const { push } = this.props.navigation;
+  handleNotification = (response) => {
+    const { navigate, push } = this.props.navigation;
 
-    if (notification.origin === 'selected') {
+    if (response.notification) {
       this.fetchData();
-      if (notification.data.id) {
-        push('AdDetail', {id: notification.data.id});
+      if (response.notification.request.content.data) {
+        push('AdDetail', {id: response.notification.request.content.data.id});
       } else {
         navigate('Home');
       }
@@ -139,5 +148,6 @@ const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
+    backgroundColor: Colors.background,
   },
 });

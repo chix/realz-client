@@ -1,11 +1,22 @@
 import AppNavigator from './navigation/AppNavigator';
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, View } from 'react-native';
-import { AppLoading, Notifications } from 'expo';
+import { Platform, StyleSheet, View } from 'react-native';
+import { AppLoading } from 'expo';
+import Constants from 'expo-constants';
 import { Asset } from 'expo-asset';
 import * as Font from 'expo-font';
+import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 export default class App extends React.Component {
   state = {
@@ -15,11 +26,11 @@ export default class App extends React.Component {
 
   componentDidMount() {
     if (Platform.OS === 'android') {
-      Notifications.createChannelAndroidAsync('new-listing', {
+      Notifications.setNotificationChannelAsync('new-listing', {
         name: 'New listing',
-        priority: 'max',
-        sound: true,
-        vibrate: true,
+        importance: Notifications.AndroidImportance.MAX,
+        sound: 'default',
+        enableVibrate: true,
       });
     }
 
@@ -38,7 +49,7 @@ export default class App extends React.Component {
     } else {
       return (
         <View style={styles.container}>
-          {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+          <StatusBar style="dark" backgroundColor="#ffffff"/>
           <AppNavigator screenProps={{expoToken: this.state.expoToken}} />
         </View>
       );
@@ -46,29 +57,19 @@ export default class App extends React.Component {
   }
 
   registerForPushNotifications = async () => {
-    const { status: existingStatus } = await Permissions.getAsync(
-      Permissions.NOTIFICATIONS
-    );
-    let finalStatus = existingStatus;
-
-    // only ask if permissions have not already been determined, because
-    // iOS won't necessarily prompt the user a second time.
-    if (existingStatus !== 'granted') {
-      // Android remote notification permissions are granted during the app
-      // install, so this will only ask on iOS
-      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
-      finalStatus = status;
+    if (Constants.isDevice) {
+      const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        return;
+      }
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+      return this.setState({expoToken: token});
     }
-
-    // Stop here if the user did not grant permissions
-    if (finalStatus !== 'granted') {
-      return;
-    }
-
-    // Get the token that uniquely identifies this device
-    let token = await Notifications.getExpoPushTokenAsync();
-
-    return this.setState({expoToken: token});
   }
 
   _loadResourcesAsync = async () => {

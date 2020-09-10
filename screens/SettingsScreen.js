@@ -113,19 +113,21 @@ export default class SettingsScreen extends React.Component {
             disabled={!settingsEnabled}
             value={settings.notificationsEnabled}
             onValueChange={this.onNotificationsEnabledChange}
+            trackColor={{false: Colors.buttonOff, true: Colors.buttonLight}}
+            thumbColor={settings.notificationsEnabled ? Colors.button : Colors.buttonOffLight}
           />
         </View>
 
-        <View style={styles.separator}/>
+        <View style={notificationsEnabled ? styles.separator : {height: 0}}/>
 
-        <View style={styles.citySwitchContainer}>
-          <Text style={notificationsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-            Brno
-          </Text>
+        <View style={notificationsEnabled ? styles.citySwitchContainer : {height: 0}}>
+          <Text style={styles.textLabel}>Brno</Text>
           <Switch
             disabled={!notificationsEnabled}
             value={settings[Cities.brno.code].enabled}
             onValueChange={(value) => this.onCityEnabledChange(Cities.brno.code, value)}
+            trackColor={{false: Colors.buttonOff, true: Colors.buttonLight}}
+            thumbColor={settings[Cities.brno.code].enabled ? Colors.button : Colors.buttonOffLight}
           />
         </View>
         <View style={brnoSettingsEnabled ? {marginTop: Math.round(Layout.sideMargin / 2)} : {height: 0}}>
@@ -146,6 +148,9 @@ export default class SettingsScreen extends React.Component {
             value={minPriceForLabel[Cities.brno.code]}
             onValueChange={(value) => this.onMinPriceChange(Cities.brno.code, value)}
             onSlidingComplete={(value) => this.onMinPriceChangeComplete(Cities.brno.code, value)}
+            thumbTintColor={Colors.button}
+            minimumTrackTintColor={Colors.buttonLight}
+            maximumTrackTintColor={Colors.buttonOff}
           />
           <View style={styles.sliderLabelContainer}>
             <Text style={brnoSettingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
@@ -164,6 +169,9 @@ export default class SettingsScreen extends React.Component {
             value={maxPriceForLabel[Cities.brno.code]}
             onValueChange={(value) => this.onMaxPriceChange(Cities.brno.code, value)}
             onSlidingComplete={(value) => this.onMaxPriceChangeComplete(Cities.brno.code, value)}
+            thumbTintColor={Colors.button}
+            minimumTrackTintColor={Colors.buttonLight}
+            maximumTrackTintColor={Colors.buttonOff}
           />
           <View style={styles.dispositionContainer}>
             { this.renderDispositionSettings(Cities.brno.code) }
@@ -188,6 +196,8 @@ export default class SettingsScreen extends React.Component {
             disabled={!enabled}
             value={disposition[key]}
             onValueChange={(value) => {this.onDispositionEnabledChange(cityCode, key, value)}}
+            trackColor={{false: Colors.buttonOff, true: Colors.buttonLight}}
+            thumbColor={disposition[key] ? Colors.button : Colors.buttonOffLight}
           />
         </View>
       );
@@ -206,6 +216,8 @@ export default class SettingsScreen extends React.Component {
             disabled={!enabled}
             value={cityDistrict[key]}
             onValueChange={(value) => {this.onCityDistrictEnabledChange(cityCode, key, value)}}
+            trackColor={{false: Colors.buttonOff, true: Colors.buttonLight}}
+            thumbColor={cityDistrict[key] ? Colors.button : Colors.buttonOffLight}
           />
         </View>
       );
@@ -434,7 +446,7 @@ const styles = StyleSheet.create({
     color: Colors.text
   },
   separator: {
-    borderWidth: 0.3,
+    borderWidth: 0.2,
     borderColor: Colors.text,
     marginLeft: Layout.sideMargin,
     marginRight: Layout.sideMargin,
