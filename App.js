@@ -1,4 +1,6 @@
+import Colors from './constants/Colors';
 import AppNavigator from './navigation/AppNavigator';
+import NavigationService from './navigation/NavigationService';
 import React from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { AppLoading } from 'expo';
@@ -18,6 +20,16 @@ Notifications.setNotificationHandler({
   }),
 });
 
+Notifications.addNotificationResponseReceivedListener((response) => {
+  if (response.notification) {
+    if (response.notification.request.content.data) {
+      NavigationService.push('AdDetail', {id: response.notification.request.content.data.id});
+    } else {
+      NavigationService.navigate('Home');
+    }
+  }
+});
+
 export default class App extends React.Component {
   state = {
     isLoadingComplete: false,
@@ -25,16 +37,7 @@ export default class App extends React.Component {
   };
 
   componentDidMount() {
-    if (Platform.OS === 'android') {
-      Notifications.setNotificationChannelAsync('new-listing', {
-        name: 'New listing',
-        importance: Notifications.AndroidImportance.MAX,
-        sound: 'default',
-        enableVibrate: true,
-      });
-    }
-
-    this.registerForPushNotifications();
+    this.registerForPushNotifications().then(token => this.setState({expoToken: token}));
   }
 
   render() {
@@ -49,14 +52,18 @@ export default class App extends React.Component {
     } else {
       return (
         <View style={styles.container}>
-          <StatusBar style="dark" backgroundColor="#ffffff"/>
-          <AppNavigator screenProps={{expoToken: this.state.expoToken}} />
+          <StatusBar style="dark" backgroundColor={Colors.backgroundColor}/>
+          <AppNavigator screenProps={{expoToken: this.state.expoToken}} ref={navigatorRef => {
+            NavigationService.setTopLevelNavigator(navigatorRef);
+          }}/>
         </View>
       );
     }
   }
 
   registerForPushNotifications = async () => {
+    let token;
+
     if (Constants.isDevice) {
       const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
       let finalStatus = existingStatus;
@@ -68,8 +75,18 @@ export default class App extends React.Component {
         return;
       }
       token = (await Notifications.getExpoPushTokenAsync()).data;
-      return this.setState({expoToken: token});
     }
+
+    if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('new-listing', {
+        name: 'New listing',
+        importance: Notifications.AndroidImportance.MAX,
+        sound: 'default',
+        enableVibrate: true,
+      });
+    }
+
+    return token;
   }
 
   _loadResourcesAsync = async () => {
@@ -99,6 +116,6 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.backgroundColor,
   },
 });

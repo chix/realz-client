@@ -12,7 +12,6 @@ import {
   ToastAndroid,
   View
 } from 'react-native';
-import * as Notifications from 'expo-notifications';
 import { AdItem } from '../components/AdItem';
 
 export default class HomeScreen extends React.Component {
@@ -27,8 +26,6 @@ export default class HomeScreen extends React.Component {
 
   componentDidMount() {
     const { navigation } = this.props;
-
-    this.notificationResponseListener = Notifications.addNotificationResponseReceivedListener(this.handleNotification);
 
     this.focusListener = navigation.addListener("didFocus", () => {
       AsyncStorage.getItem('@Setttings:main')
@@ -56,7 +53,6 @@ export default class HomeScreen extends React.Component {
 
   componentWillUnmount() {
     this.focusListener.remove();
-    this.notificationResponseListener.remove();
   }
 
   render() {
@@ -123,19 +119,6 @@ export default class HomeScreen extends React.Component {
         }
       });
     });
-  }
-
-  handleNotification = (response) => {
-    const { navigate, push } = this.props.navigation;
-
-    if (response.notification) {
-      this.fetchData();
-      if (response.notification.request.content.data) {
-        push('AdDetail', {id: response.notification.request.content.data.id});
-      } else {
-        navigate('Home');
-      }
-    }
   }
 }
 
