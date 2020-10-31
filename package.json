@@ -7,7 +7,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "eject": "expo eject",
-    "test": "node ./node_modules/jest/bin/jest.js --watchAll"
+    "test": "jest --watchAll"
   },
   "jest": {
     "preset": "jest-expo"
@@ -15,16 +15,17 @@
   "dependencies": {
     "@expo/vector-icons": "^10.0.0",
     "@react-native-community/masked-view": "0.1.10",
-    "expo": "^39.0.0",
+    "expo": "^39.0.2",
     "expo-asset": "~8.2.0",
     "expo-constants": "~9.2.0",
     "expo-font": "~8.3.0",
     "expo-notifications": "~0.7.2",
     "expo-permissions": "~9.3.0",
+    "expo-splash-screen": "~0.6.2",
     "expo-status-bar": "~1.0.2",
     "expo-web-browser": "~8.5.0",
     "react": "16.13.1",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-39.0.0.tar.gz",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-39.0.4.tar.gz",
     "react-native-gesture-handler": "~1.7.0",
     "react-native-image-viewing": "^0.2.0",
     "react-native-reanimated": "~1.13.0",
@@ -37,9 +38,9 @@
     "react-navigation-tabs": "^2.9.1"
   },
   "devDependencies": {
+    "@babel/core": "~7.9.0",
     "@types/react": "~16.9.35",
     "@types/react-native": "~0.63.2",
-    "babel-preset-expo": "^8.3.0",
     "jest-expo": "^39.0.0"
   }
 }

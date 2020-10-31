@@ -1,12 +1,9 @@
-import API from '../constants/Api';
-import Cities from '../constants/Cities';
-import Colors from '../constants/Colors';
-import Layout from '../constants/Layout';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   AsyncStorage,
   Picker,
   Platform,
+  SafeAreaView,
   ScrollView,
   Slider,
   StyleSheet,
@@ -16,177 +13,51 @@ import {
   View
 } from 'react-native';
 
-export default class SettingsScreen extends React.Component {
-  static navigationOptions = {
-    headerShown: false,
-  };
+import API from '../constants/Api';
+import Cities from '../constants/Cities';
+import Colors from '../constants/Colors';
+import Layout from '../constants/Layout';
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      settingsDisabled: true,
-      minPriceForLabel: {
-        [Cities.brno.code]: 0,
+const SettingsScreen = ({screenProps}) => {
+  const [settingsDisabled, setSettingsDisabled] = React.useState(true);
+  const [minPriceForLabel, setMinPriceForLabel] = React.useState({
+    [Cities.brno.code]: 0,
+  });
+  const [maxPriceForLabel, setMaxPriceForLabel] = React.useState({
+    [Cities.brno.code]: 0,
+  });
+  const [settings, setSettings] = React.useState({
+    advertType: 'sale',
+    notificationsEnabled: false,
+    [Cities.brno.code]: {
+      enabled: false,
+      minPrice: 0,
+      maxPrice: 0,
+      disposition: {
+        '1': false,
+        '1+kk': false,
+        '1+1': false,
+        '2+kk': false,
+        '2+1': false,
+        '3+kk': false,
+        '3+1': false,
+        '4+kk': false,
+        '4+1': false,
+        '5+kk': false,
+        '5+1': false,
+        '6+': false,
+        'other': false,
       },
-      maxPriceForLabel: {
-        [Cities.brno.code]: 0,
-      },
-      settings: {
-        advertType: 'sale',
-        notificationsEnabled: false,
-        [Cities.brno.code]: {
-          enabled: false,
-          minPrice: 0,
-          maxPrice: 0,
-          disposition: {
-            '1': false,
-            '1+kk': false,
-            '1+1': false,
-            '2+kk': false,
-            '2+1': false,
-            '3+kk': false,
-            '3+1': false,
-            '4+kk': false,
-            '4+1': false,
-            '5+kk': false,
-            '5+1': false,
-            '6+': false,
-            'other': false,
-          },
-          cityDistrict: Cities.brno.districtsettings,
-        },
-      },
-    };
+      cityDistrict: Cities.brno.districtsettings,
+    },
+  });
+  const notificationsEnabled = !settingsDisabled && settings.notificationsEnabled;
+  const brnoSettings = settings[Cities.brno.code];
+  const brnoSettingsEnabled = notificationsEnabled && brnoSettings.enabled;
 
-    AsyncStorage.getItem('@Setttings:main')
-    .then((settings) => {
-      if (settings !== null) {
-        const parsedSettings = this.getSettings(JSON.parse(settings));
-        this.setState({
-          settingsDisabled: false,
-          minPriceForLabel: {[Cities.brno.code]: parsedSettings[Cities.brno.code].minPrice},
-          maxPriceForLabel: {[Cities.brno.code]: parsedSettings[Cities.brno.code].maxPrice},
-          settings: parsedSettings,
-        });
-      } else {
-        this.setState({settingsDisabled: false});
-      }
-    });
-  }
-
-  render() {
-    const settings = this.state.settings;
-    const settingsEnabled = !this.state.settingsDisabled;
-    const notificationsEnabled = settingsEnabled && settings.notificationsEnabled;
-    const brnoSettings = this.state.settings[Cities.brno.code];
-    const brnoSettingsEnabled = notificationsEnabled && brnoSettings.enabled;
-    const minPriceForLabel = this.state.minPriceForLabel;
-    const maxPriceForLabel = this.state.maxPriceForLabel;
-
-    return (
-      <ScrollView style={styles.container}>
-        <View style={styles.advertTypePickerContainer}>
-          <Text style={settingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-            Advert type
-          </Text>
-          <Text style={styles.textLabel}></Text>
-          <Picker
-            disabled={!settingsEnabled}
-            selectedValue={settings.advertType}
-            onValueChange={this.onAdvertTypeChange}
-            style={styles.picker}
-          >
-            <Picker.Item label="Sale" value="sale" />
-            <Picker.Item label="Rent" value="rent" />
-          </Picker>
-        </View>
-
-        <View style={styles.separator}/>
-
-        <View style={styles.notificationSwitchContainer}>
-          <Text style={settingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-            Enable notifications
-          </Text>
-          <Text style={styles.textLabel}></Text>
-          <Switch
-            disabled={!settingsEnabled}
-            value={settings.notificationsEnabled}
-            onValueChange={this.onNotificationsEnabledChange}
-            trackColor={{false: Colors.buttonOff, true: Colors.buttonLight}}
-            thumbColor={settings.notificationsEnabled ? Colors.button : Colors.buttonOffLight}
-          />
-        </View>
-
-        <View style={notificationsEnabled ? styles.separator : {height: 0}}/>
-
-        <View style={notificationsEnabled ? styles.citySwitchContainer : {height: 0}}>
-          <Text style={styles.textLabel}>Brno</Text>
-          <Switch
-            disabled={!notificationsEnabled}
-            value={settings[Cities.brno.code].enabled}
-            onValueChange={(value) => this.onCityEnabledChange(Cities.brno.code, value)}
-            trackColor={{false: Colors.buttonOff, true: Colors.buttonLight}}
-            thumbColor={settings[Cities.brno.code].enabled ? Colors.button : Colors.buttonOffLight}
-          />
-        </View>
-        <View style={brnoSettingsEnabled ? {marginTop: Math.round(Layout.sideMargin / 2)} : {height: 0}}>
-          <View style={styles.sliderLabelContainer}>
-            <Text style={brnoSettingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-              Minimum price
-            </Text>
-            <Text style={brnoSettingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-              {minPriceForLabel[Cities.brno.code] !== 0 ? minPriceForLabel[Cities.brno.code].toString() + ' Kč' : ''}
-            </Text>
-          </View>
-          <Slider
-            style={styles.slider}
-            disabled={!brnoSettingsEnabled}
-            minimumValue={0}
-            maximumValue={this.state.settings.advertType === 'sale' ? 5000000 : 50000}
-            step={this.state.settings.advertType === 'sale' ? 100000 : 1000}
-            value={minPriceForLabel[Cities.brno.code]}
-            onValueChange={(value) => this.onMinPriceChange(Cities.brno.code, value)}
-            onSlidingComplete={(value) => this.onMinPriceChangeComplete(Cities.brno.code, value)}
-            thumbTintColor={Colors.button}
-            minimumTrackTintColor={Colors.buttonLight}
-            maximumTrackTintColor={Colors.buttonOff}
-          />
-          <View style={styles.sliderLabelContainer}>
-            <Text style={brnoSettingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-              Maximum price
-            </Text>
-            <Text style={brnoSettingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
-              {maxPriceForLabel[Cities.brno.code] !== 0 ? maxPriceForLabel[Cities.brno.code].toString() + ' Kč' : ''}
-            </Text>
-          </View>
-          <Slider
-            style={styles.slider}
-            disabled={!brnoSettingsEnabled || !settingsEnabled}
-            minimumValue={0}
-            maximumValue={this.state.settings.advertType === 'sale' ? 5000000 : 50000}
-            step={this.state.settings.advertType === 'sale' ? 100000 : 1000}
-            value={maxPriceForLabel[Cities.brno.code]}
-            onValueChange={(value) => this.onMaxPriceChange(Cities.brno.code, value)}
-            onSlidingComplete={(value) => this.onMaxPriceChangeComplete(Cities.brno.code, value)}
-            thumbTintColor={Colors.button}
-            minimumTrackTintColor={Colors.buttonLight}
-            maximumTrackTintColor={Colors.buttonOff}
-          />
-          <View style={styles.dispositionContainer}>
-            { this.renderDispositionSettings(Cities.brno.code) }
-          </View>
-          <View style={styles.cityDistrictContainer}>
-            { this.renderCityDistrictSettings(Cities.brno.code) }
-          </View>
-        </View>
-      </ScrollView>
-    );
-  }
-
-  renderDispositionSettings = (cityCode) => {
-    const { disposition } = this.state.settings[cityCode];
-    const enabled = !this.state.settingsDisabled && this.state.settings.notificationsEnabled && this.state.settings[cityCode].enabled;
+  const renderDispositionSettings = (cityCode) => {
+    const { disposition } = settings[cityCode];
+    const enabled = !settingsDisabled && settings.notificationsEnabled && settings[cityCode].enabled;
 
     return Object.keys(disposition).map((key) => {
       return (
@@ -195,18 +66,18 @@ export default class SettingsScreen extends React.Component {
           <Switch
             disabled={!enabled}
             value={disposition[key]}
-            onValueChange={(value) => {this.onDispositionEnabledChange(cityCode, key, value)}}
+            onValueChange={(value) => {onDispositionEnabledChange(cityCode, key, value)}}
             trackColor={{false: Colors.buttonOff, true: Colors.buttonLight}}
             thumbColor={disposition[key] ? Colors.button : Colors.buttonOffLight}
           />
         </View>
       );
     });
-  }
+  };
 
-  renderCityDistrictSettings = (cityCode) => {
-    const { cityDistrict } = this.state.settings[cityCode];
-    const enabled = !this.state.settingsDisabled && this.state.settings.notificationsEnabled && this.state.settings[cityCode].enabled;
+  const renderCityDistrictSettings = (cityCode) => {
+    const { cityDistrict } = settings[cityCode];
+    const enabled = !settingsDisabled && settings.notificationsEnabled && settings[cityCode].enabled;
 
     return Object.keys(cityDistrict).map((key) => {
       return (
@@ -215,82 +86,78 @@ export default class SettingsScreen extends React.Component {
           <Switch
             disabled={!enabled}
             value={cityDistrict[key]}
-            onValueChange={(value) => {this.onCityDistrictEnabledChange(cityCode, key, value)}}
+            onValueChange={(value) => {onCityDistrictEnabledChange(cityCode, key, value)}}
             trackColor={{false: Colors.buttonOff, true: Colors.buttonLight}}
             thumbColor={cityDistrict[key] ? Colors.button : Colors.buttonOffLight}
           />
         </View>
       );
     });
-  }
+  };
 
-  onNotificationsEnabledChange = (value) => {
-    this.persistSettings({notificationsEnabled: value});
-  }
+  const onNotificationsEnabledChange = (value) => {
+    persistSettings({notificationsEnabled: value});
+  };
 
-  onAdvertTypeChange = (value) => {
-    this.persistSettings({advertType: value});
-  }
+  const onAdvertTypeChange = (value) => {
+    persistSettings({advertType: value});
+  };
 
-  onCityEnabledChange = (cityCode, value) => {
-    const settings = JSON.parse(JSON.stringify(this.getSettings()));
-    settings[cityCode].enabled = value;
-    this.persistSettings(settings);
-  }
+  const onCityEnabledChange = (cityCode, value) => {
+    const s = JSON.parse(JSON.stringify(settings));
+    s[cityCode].enabled = value;
+    persistSettings(s);
+  };
 
-  onMinPriceChange = (cityCode, value) => {
-    const minPriceForLabelSettings = JSON.parse(JSON.stringify(this.state.minPriceForLabel));
+  const onMinPriceChange = (cityCode, value) => {
+    const minPriceForLabelSettings = JSON.parse(JSON.stringify(minPriceForLabel));
     minPriceForLabelSettings[cityCode] = value;
-    this.setState({minPriceForLabel: minPriceForLabelSettings});
-  }
+    setMinPriceForLabel(minPriceForLabelSettings);
+  };
 
-  onMinPriceChangeComplete = (cityCode, value) => {
-    clearTimeout(this.minPriceSliderTimeoutId)
-    this.minPriceSliderTimeoutId = setTimeout(() => {
-      const settings = JSON.parse(JSON.stringify(this.getSettings()));
-      settings[cityCode].minPrice = value;
-      this.persistSettings(settings);
+  const onMinPriceChangeComplete = (cityCode, value) => {
+    clearTimeout(minPriceSliderTimeoutId)
+    const minPriceSliderTimeoutId = setTimeout(() => {
+      const s = JSON.parse(JSON.stringify(settings));
+      s[cityCode].minPrice = value;
+      persistSettings(s);
     }, 50)
-  }
+  };
 
-  onMaxPriceChange = (cityCode, value) => {
-    const maxPriceForLabelSettings = JSON.parse(JSON.stringify(this.state.maxPriceForLabel));
+  const onMaxPriceChange = (cityCode, value) => {
+    const maxPriceForLabelSettings = JSON.parse(JSON.stringify(maxPriceForLabel));
     maxPriceForLabelSettings[cityCode] = value;
-    this.setState({maxPriceForLabel: maxPriceForLabelSettings});
-  }
+    setMaxPriceForLabel(maxPriceForLabelSettings);
+  };
 
-  onMaxPriceChangeComplete = (cityCode, value) => {
-    clearTimeout(this.maxPriceSliderTimeoutId)
-    this.maxPriceSliderTimeoutId = setTimeout(() => {
-      const settings = JSON.parse(JSON.stringify(this.getSettings()));
-      settings[cityCode].maxPrice = value;
-      this.persistSettings(settings);
+  const onMaxPriceChangeComplete = (cityCode, value) => {
+    clearTimeout(maxPriceSliderTimeoutId)
+    const maxPriceSliderTimeoutId = setTimeout(() => {
+      const s= JSON.parse(JSON.stringify(settings));
+      s[cityCode].maxPrice = value;
+      persistSettings(s);
     }, 50)
   }
 
-  onDispositionEnabledChange = (cityCode, disposition, value) => {
-    const settings = JSON.parse(JSON.stringify(this.getSettings()));
-    settings[cityCode].disposition[disposition] = value;
-    this.persistSettings(settings);
-  }
+  const onDispositionEnabledChange = (cityCode, disposition, value) => {
+    const s = JSON.parse(JSON.stringify(settings));
+    s[cityCode].disposition[disposition] = value;
+    persistSettings(s);
+  };
 
-  onCityDistrictEnabledChange = (cityCode, cityDistrict, value) => {
-    const settings = JSON.parse(JSON.stringify(this.getSettings()));
-    settings[cityCode].cityDistrict[cityDistrict] = value;
-    this.persistSettings(settings);
-  }
+  const onCityDistrictEnabledChange = (cityCode, cityDistrict, value) => {
+    const s = JSON.parse(JSON.stringify(settings));
+    s[cityCode].cityDistrict[cityDistrict] = value;
+    persistSettings(s);
+  };
 
-  getSettings = (newSettings) => {
-    let settings = this.state.settings;
-    if (newSettings !== undefined) {
-      settings = {...this.state.settings, ...newSettings};
-    }
-    return settings;
-  }
+  const mergeSettings = (newSettings) => {
+    return {...settings, ...newSettings};
+  };
 
-  persistSettings = async (newSettings) => {
+  const persistSettings = async (newSettings) => {
     const brnoFilters = {};
-    const settings = this.getSettings(newSettings);
+    const settings = mergeSettings(newSettings);
     const brnoSettings = settings[Cities.brno.code];
     let filters = {};
 
@@ -328,7 +195,7 @@ export default class SettingsScreen extends React.Component {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        token: this.props.screenProps.expoToken,
+        token: screenProps.expoToken,
         enabled: settings.notificationsEnabled,
         filters: filters,
       }),
@@ -342,27 +209,148 @@ export default class SettingsScreen extends React.Component {
         JSON.stringify(settings)
       ).
       then(() => {
-        this.setState({settings: settings});
+        setSettings(settings);
       });
     })
     .catch(() => {
-      const minPriceForLabelSettings = JSON.parse(JSON.stringify(this.state.minPriceForLabel));
-      const maxPriceForLabelSettings = JSON.parse(JSON.stringify(this.state.maxPriceForLabel));
-      minPriceForLabelSettings[Cities.brno.code] = this.state.settings[Cities.brno.code].minPrice;
-      maxPriceForLabelSettings[Cities.brno.code] = this.state.settings[Cities.brno.code].maxPrice;
-      this.setState({
-        minPriceForLabel: minPriceForLabelSettings,
-        maxPriceForLabel: maxPriceForLabelSettings,
-      }, () => {
-        if (Platform.OS === 'android') {
-          ToastAndroid.showWithGravity('Could not save settings, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
-        }
-      });
+      const minPriceForLabelSettings = JSON.parse(JSON.stringify(minPriceForLabel));
+      const maxPriceForLabelSettings = JSON.parse(JSON.stringify(maxPriceForLabel));
+      minPriceForLabelSettings[Cities.brno.code] = s[Cities.brno.code].minPrice;
+      maxPriceForLabelSettings[Cities.brno.code] = s[Cities.brno.code].maxPrice;
+      setMinPriceForLabel(minPriceForLabelSettings);
+      setMaxPriceForLabel(maxPriceForLabelSettings);
+      if (Platform.OS === 'android') {
+        ToastAndroid.showWithGravity('Could not save settings, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
+      }
     });
-  }
-}
+  };
+
+  useEffect(() => {
+    AsyncStorage.getItem('@Setttings:main')
+    .then((item) => {
+      if (item !== null) {
+        const parsedSettings = mergeSettings(JSON.parse(item));
+        setSettingsDisabled(false);
+        setMinPriceForLabel({[Cities.brno.code]: parsedSettings[Cities.brno.code].minPrice});
+        setMaxPriceForLabel({[Cities.brno.code]: parsedSettings[Cities.brno.code].maxPrice});
+        setSettings(parsedSettings);
+      } else {
+        setSettingsDisabled(false);
+      }
+    });
+  }, []);
+
+  return (
+    <SafeAreaView style={styles.root}>
+      <ScrollView style={styles.container}>
+        <View style={styles.advertTypePickerContainer}>
+          <Text style={!settingsDisabled ? styles.textLabel : styles.textLabelDisabled}>
+            Advert type
+          </Text>
+          <Text style={styles.textLabel}></Text>
+          <Picker
+            disabled={settingsDisabled}
+            selectedValue={settings.advertType}
+            onValueChange={onAdvertTypeChange}
+            style={styles.picker}
+          >
+            <Picker.Item label="Sale" value="sale" />
+            <Picker.Item label="Rent" value="rent" />
+          </Picker>
+        </View>
+
+        <View style={styles.separator}/>
+
+        <View style={styles.notificationSwitchContainer}>
+          <Text style={!settingsDisabled ? styles.textLabel : styles.textLabelDisabled}>
+            Enable notifications
+          </Text>
+          <Text style={styles.textLabel}></Text>
+          <Switch
+            disabled={settingsDisabled}
+            value={settings.notificationsEnabled}
+            onValueChange={onNotificationsEnabledChange}
+            trackColor={{false: Colors.buttonOff, true: Colors.buttonLight}}
+            thumbColor={settings.notificationsEnabled ? Colors.button : Colors.buttonOffLight}
+          />
+        </View>
+
+        <View style={notificationsEnabled ? styles.separator : {height: 0}}/>
+
+        <View style={notificationsEnabled ? styles.citySwitchContainer : {height: 0}}>
+          <Text style={styles.textLabel}>Brno</Text>
+          <Switch
+            disabled={!notificationsEnabled}
+            value={settings[Cities.brno.code].enabled}
+            onValueChange={(value) => onCityEnabledChange(Cities.brno.code, value)}
+            trackColor={{false: Colors.buttonOff, true: Colors.buttonLight}}
+            thumbColor={settings[Cities.brno.code].enabled ? Colors.button : Colors.buttonOffLight}
+          />
+        </View>
+        <View style={brnoSettingsEnabled ? {marginTop: Math.round(Layout.sideMargin / 2)} : {height: 0}}>
+          <View style={styles.sliderLabelContainer}>
+            <Text style={brnoSettingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+              Minimum price
+            </Text>
+            <Text style={brnoSettingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+              {minPriceForLabel[Cities.brno.code] !== 0 ? minPriceForLabel[Cities.brno.code].toString() + ' Kč' : ''}
+            </Text>
+          </View>
+          <Slider
+            style={styles.slider}
+            disabled={!brnoSettingsEnabled}
+            minimumValue={0}
+            maximumValue={settings.advertType === 'sale' ? 5000000 : 50000}
+            step={settings.advertType === 'sale' ? 100000 : 1000}
+            value={minPriceForLabel[Cities.brno.code]}
+            onValueChange={(value) => onMinPriceChange(Cities.brno.code, value)}
+            onSlidingComplete={(value) => onMinPriceChangeComplete(Cities.brno.code, value)}
+            thumbTintColor={Colors.button}
+            minimumTrackTintColor={Colors.buttonLight}
+            maximumTrackTintColor={Colors.buttonOff}
+          />
+          <View style={styles.sliderLabelContainer}>
+            <Text style={brnoSettingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+              Maximum price
+            </Text>
+            <Text style={brnoSettingsEnabled ? styles.textLabel : styles.textLabelDisabled}>
+              {maxPriceForLabel[Cities.brno.code] !== 0 ? maxPriceForLabel[Cities.brno.code].toString() + ' Kč' : ''}
+            </Text>
+          </View>
+          <Slider
+            style={styles.slider}
+            disabled={!brnoSettingsEnabled || settingsDisabled}
+            minimumValue={0}
+            maximumValue={settings.advertType === 'sale' ? 5000000 : 50000}
+            step={settings.advertType === 'sale' ? 100000 : 1000}
+            value={maxPriceForLabel[Cities.brno.code]}
+            onValueChange={(value) => onMaxPriceChange(Cities.brno.code, value)}
+            onSlidingComplete={(value) => onMaxPriceChangeComplete(Cities.brno.code, value)}
+            thumbTintColor={Colors.button}
+            minimumTrackTintColor={Colors.buttonLight}
+            maximumTrackTintColor={Colors.buttonOff}
+          />
+          <View style={styles.dispositionContainer}>
+            { renderDispositionSettings(Cities.brno.code) }
+          </View>
+          <View style={styles.cityDistrictContainer}>
+            { renderCityDistrictSettings(Cities.brno.code) }
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+SettingsScreen.navigationOptions = () => ({
+  headerShown: false,
+});
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
   container: {
     flex: 1,
     marginTop: Layout.mainStatusBarHeight,
@@ -454,3 +442,5 @@ const styles = StyleSheet.create({
     marginBottom: Math.round(Layout.sideMargin / 2),
   },
 });
+
+export default SettingsScreen;

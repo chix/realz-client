@@ -1,97 +1,30 @@
-import API from '../constants/Api';
-import Colors from '../constants/Colors';
-import Layout from '../constants/Layout';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   AsyncStorage,
   ActivityIndicator,
   FlatList,
   Platform,
   RefreshControl,
+  SafeAreaView,
   StyleSheet,
   ToastAndroid,
   View
 } from 'react-native';
-import { AdItem } from '../components/AdItem';
 
-export default class HomeScreen extends React.Component {
-  static navigationOptions = {
-    headerShown: false,
-  };
+import AdItem from '../components/AdItem';
+import API from '../constants/Api';
+import Colors from '../constants/Colors';
+import Layout from '../constants/Layout';
 
-  constructor(props) {
-    super(props);
-    this.state = { isLoading: true, advertType: 'sale', dataSource: [] };
-  }
+const HomeScreen = ({navigation}) => {
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [advertType, setAdvertType] = React.useState('sale');
+  const [dataSource, setDataSource] = React.useState([]);
 
-  componentDidMount() {
-    const { navigation } = this.props;
+  const fetchData = async () => {
+    setIsLoading(true);
 
-    this.focusListener = navigation.addListener("didFocus", () => {
-      AsyncStorage.getItem('@Setttings:main')
-      .then((settings) => {
-        if (settings !== null) {
-          const parsedSettings = JSON.parse(settings);
-          if (parsedSettings.advertType && this.state.advertType !== parsedSettings.advertType) {
-            this.setState({advertType: parsedSettings.advertType}, this.fetchData);
-          }
-        }
-      });
-    });
-
-    AsyncStorage.getItem('@Setttings:main')
-    .then((settings) => {
-      if (settings !== null) {
-        const parsedSettings = JSON.parse(settings);
-        if (parsedSettings.advertType) {
-          return this.setState({advertType: parsedSettings.advertType}, this.fetchData);
-        }
-      }
-      return this.fetchData();
-    });
-  }
-
-  componentWillUnmount() {
-    this.focusListener.remove();
-  }
-
-  render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.tintColor}/>
-        </View>
-      )
-    }
-    return (
-      <View style={styles.container}>
-        <FlatList
-          data={this.state.dataSource}
-          renderItem={(item) => <AdItem navigation={this.props.navigation} {...item}/>}
-          keyExtractor={(item) => item.id.toString()}
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.isLoading}
-              onRefresh={this.fetchData}
-              tintColor={Colors.backgroundColor}
-              titleColor={Colors.backgroundColor}
-              colors={[Colors.tintColor, Colors.tintColor, Colors.tintColor]}
-            />
-          }
-        >
-        </FlatList>
-      </View>
-    );
-  }
-
-  onRefresh = async () => {
-    return this.fetchData();
-  }
-
-  fetchData = async () => {
-    this.setState({isLoading: true});
-
-    return fetch(API.host+'/api/adverts?exists[deletedAt]=false&order[id]=desc&type.code=' + this.state.advertType, {
+    return fetch(API.host+'/api/adverts?exists[deletedAt]=false&order[id]=desc&type.code=' + advertType, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -104,25 +37,91 @@ export default class HomeScreen extends React.Component {
       return response.json()
     })
     .then((responseJson) => {
-      this.setState({
-        isLoading: false,
-        dataSource: responseJson,
-      });
+      setIsLoading(false);
+      setDataSource(responseJson);
     })
     .catch(() => {
-      this.setState({
-        isLoading: false,
-        dataSource: [],
-      }, () => {
-        if (Platform.OS === 'android') {
-          ToastAndroid.showWithGravity('Could not fetch data, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
+      setIsLoading(false);
+      setDataSource([]);
+      if (Platform.OS === 'android') {
+        ToastAndroid.showWithGravity('Could not fetch data, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
+      }
+    });
+  };
+
+  useEffect(() => {
+    const focusListener = navigation.addListener("didFocus", () => {
+      AsyncStorage.getItem('@Setttings:main')
+      .then((settings) => {
+        if (settings !== null) {
+          const parsedSettings = JSON.parse(settings);
+          if (parsedSettings.advertType && advertType !== parsedSettings.advertType) {
+            setAdvertType(parsedSettings.advertType);
+          }
         }
       });
     });
+
+    AsyncStorage.getItem('@Setttings:main')
+    .then((settings) => {
+      if (settings !== null) {
+        const parsedSettings = JSON.parse(settings);
+        if (parsedSettings.advertType) {
+          setAdvertType(parsedSettings.advertType);
+        }
+      }
+    });
+
+    return () => {
+      focusListener.remove();
+    };
+  }, []);
+
+  // reload if advert type changes
+  useEffect(() => {
+    fetchData();
+  }, [advertType]);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.tintColor}/>
+      </View>
+    );
   }
-}
+
+  return (
+    <SafeAreaView style={styles.root}>
+      <View style={styles.container}>
+        <FlatList
+          data={dataSource}
+          renderItem={(item) => <AdItem navigation={navigation} {...item}/>}
+          keyExtractor={(item) => item.id.toString()}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={fetchData}
+              tintColor={Colors.backgroundColor}
+              titleColor={Colors.backgroundColor}
+              colors={[Colors.tintColor, Colors.tintColor, Colors.tintColor]}
+            />
+          }
+        >
+        </FlatList>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+HomeScreen.navigationOptions = () => ({
+  headerShown: false
+});
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
   container: {
     flex: 1,
     marginTop: Layout.mainStatusBarHeight,
@@ -134,3 +133,5 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
 });
+
+export default HomeScreen;

@@ -1,8 +1,5 @@
-import API from '../constants/Api';
-import Colors from '../constants/Colors';
-import Layout from '../constants/Layout';
 import * as WebBrowser from 'expo-web-browser';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -19,111 +16,53 @@ import {
 } from 'react-native';
 import ImageGallery from 'react-native-image-viewing';
 
-export default class AdDetailScreen extends React.Component {
-  static navigationOptions = {
-    headerShown: false,
+import API from '../constants/Api';
+import Colors from '../constants/Colors';
+import Layout from '../constants/Layout';
+
+const AdDetailScreen = ({navigation}) => {
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [data, setData] = React.useState(null);
+  const [galleryVisible, setGalleryVisible] = React.useState(false);
+  const [galleryIndex, setGalleryIndex] = React.useState(0);
+
+  const onClick = () => {
+    WebBrowser.openBrowserAsync(data.externalUrl);
   };
 
-  constructor(props) {
-    super(props);
-    this.state = { isLoading: true, data: null, galleryVisible: false, galleryIndex: 0 };
-  }
-
-  componentDidMount() {
-    const id = this.props.navigation.getParam('id');
-
-    return this.fetchData(API.host+'/api/adverts/'+id);
-  }
-
-  render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.tintColor}/>
-        </View>
-      )
-    }
-
-    const { data, galleryIndex, galleryVisible } = this.state;
-
-    if (data === null) {
-      return (
-        <View></View>
-      )
-    }
-
-    return (
-      <SafeAreaView style={styles.root}>
-        <ScrollView style={styles.container}>
-          <Text style={styles.headerText}>{data.title}</Text>
-          <Text style={styles.subheaderText}>{data.property.location.street}</Text>
-          <Text style={styles.subheaderText}>
-            {(data.price !== undefined && data.price !== null) ? data.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč' : ''}
-          </Text>
-          <View style={styles.imageContainer}>
-            { this.renderImageThumbnails() }
-          </View>
-          <View style={styles.textContainer}>
-            <Text style={styles.text}>{data.description}</Text>
-            <View style={styles.spacer}/>
-            <Button color={Colors.button} title={'View on '+data.source.name} onPress={this.onClick}/>
-            <View style={styles.spacer}/>
-            <View style={styles.spacer}/>
-          </View>
-        </ScrollView>
-        <ImageGallery
-          images={this.getGalleryImageUrls()}
-          imageIndex={galleryIndex}
-          visible={galleryVisible}
-          onRequestClose={this.onGalleryClose}
-          presentationStyle='overFullScreen'
-        />
-      </SafeAreaView>
-    );
-  }
-
-  onClick = () => {
-    const { data } = this.state;
-
-    WebBrowser.openBrowserAsync(data.externalUrl);
-  }
-
-  renderImageThumbnails = () => {
-    const { data } = this.state;
-
+  const renderImageThumbnails = () => {
     return data.property.images.map((image, index) => {
       return (
         <ImageBackground source={require('../assets/images/placeholder.jpg')} style={styles.placeholder} key={image.image}>
-          <TouchableOpacity onPress={() => this.onGalleryOpen(index)}>
+          <TouchableOpacity onPress={() => onGalleryOpen(index)}>
             <Image
               source={{uri: image.thumbnail}}
               style={styles.image}
-              onPress={this.onGalleryOpen}
+              onPress={onGalleryOpen}
             />
           </TouchableOpacity>
         </ImageBackground>      
       );
     });
-  }
+  };
 
-  onGalleryOpen = (index) => {
-    this.setState({galleryIndex: index, galleryVisible: true});
-  }
+  const onGalleryOpen = (index) => {
+    setGalleryIndex(index);
+    setGalleryVisible(true);
+  };
 
-  getGalleryImageUrls = () => {
-    const { data } = this.state;
-
+  const getGalleryImageUrls = () => {
     return data.property.images.map((image) => {
       return { uri: image.image };
     });
-  }
+  };
 
-  onGalleryClose = () => {
-    this.setState({galleryVisible: false});
-  }
+  const onGalleryClose = () => {
+    setGalleryVisible(false);
+  };
 
-  fetchData = async (href) => {
-    this.setState({isLoading: true});
+  const fetchData = async (href) => {
+    setIsLoading(true);
 
     return fetch(href, {
       method: 'GET',
@@ -138,23 +77,71 @@ export default class AdDetailScreen extends React.Component {
       return response.json()
     })
     .then((responseJson) => {
-      this.setState({
-        isLoading: false,
-        data: responseJson,
-      });
+      setIsLoading(false);
+      setData(responseJson);
     })
     .catch(() =>{
-      this.setState({
-        isLoading: false,
-        data: null,
-      }, () => {
-        if (Platform.OS === 'android') {
-          ToastAndroid.showWithGravity('Could not fetch data, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
-        }
-      });
+      setIsLoading(false);
+      setData(null);
+      if (Platform.OS === 'android') {
+        ToastAndroid.showWithGravity('Could not fetch data, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
+      }
     });
+  };
+
+  useEffect(() => {
+    const id = navigation.getParam('id');
+
+    fetchData(API.host+'/api/adverts/'+id);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.tintColor}/>
+      </View>
+    )
   }
-}
+
+  if (data === null) {
+    return (
+      <View></View>
+    )
+  }
+
+  return (
+    <SafeAreaView style={styles.root}>
+      <ScrollView style={styles.container}>
+        <Text style={styles.headerText}>{data.title}</Text>
+        <Text style={styles.subheaderText}>{data.property.location.street}</Text>
+        <Text style={styles.subheaderText}>
+          {(data.price !== undefined && data.price !== null) ? data.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč' : ''}
+        </Text>
+        <View style={styles.imageContainer}>
+          { renderImageThumbnails() }
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={styles.text}>{data.description}</Text>
+          <View style={styles.spacer}/>
+          <Button color={Colors.button} title={'View on '+data.source.name} onPress={onClick}/>
+          <View style={styles.spacer}/>
+          <View style={styles.spacer}/>
+        </View>
+      </ScrollView>
+      <ImageGallery
+        images={getGalleryImageUrls()}
+        imageIndex={galleryIndex}
+        visible={galleryVisible}
+        onRequestClose={onGalleryClose}
+        presentationStyle='overFullScreen'
+      />
+    </SafeAreaView>
+  );
+};
+
+AdDetailScreen.navigationOptions = () => ({
+  headerShown: false
+});
 
 const styles = StyleSheet.create({
   root: {
@@ -212,3 +199,5 @@ const styles = StyleSheet.create({
     marginTop: Layout.sideMargin,
   },
 });
+
+export default AdDetailScreen;

@@ -1,57 +1,53 @@
-import Colors from '../constants/Colors';
-import Layout from '../constants/Layout';
 import React from 'react';
 import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export class AdItem extends React.Component {
-  render() {
-    const { navigate } = this.props.navigation;
-    const { item } = this.props;
+import Colors from '../constants/Colors';
+import Layout from '../constants/Layout';
 
-    return (
-      <TouchableOpacity onPress={() => navigate('AdDetail', {id: item.id})}>
-        <View style={styles.container}>
-          <View style={styles.headerContainer}>
-            <Text style={styles.headerText}>{(item.title.length > 28) ? item.title.substring(0, 28) + '...' : item.title}</Text>
-            <Text style={styles.headerText}>
-              {(item.price !== undefined && item.price !== null) ? item.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč' : ''}
-            </Text>
-          </View>
-          <View style={styles.imageContainer}>
-            {
-              (item.source)
-              &&
-              <Text style={styles.sourceBadge}>{item.source.name}</Text>
-            }
-            <ImageBackground source={require('../assets/images/placeholder.jpg')} style={styles.placeholder}>
-              {
-                (item.property.images[0] !== undefined)
-                &&
-                <Image
-                  source={{uri: item.property.images[0].thumbnail}}
-                  style={styles.image}
-                />
-              }
-            </ImageBackground>      
-            <ImageBackground source={require('../assets/images/placeholder.jpg')} style={styles.placeholder}>
-              {
-                (item.property.images[1] !== undefined)
-                &&
-                <Image
-                  source={{uri: item.property.images[1].thumbnail}}
-                  style={styles.image}
-                />
-              }
-            </ImageBackground>      
-          </View>
-          <View>
-            <Text style={styles.subheaderText}>{item.property.location.street}</Text>
-          </View>
+export default function AdItem({item, navigation}) {
+  return (
+    <TouchableOpacity onPress={() => navigation.navigate('AdDetail', {id: item.id})}>
+      <View style={styles.container}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>{(item.title.length > 28) ? item.title.substring(0, 28) + '...' : item.title}</Text>
+          <Text style={styles.headerText}>
+            {(item.price !== undefined && item.price !== null) ? item.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč' : ''}
+          </Text>
         </View>
-      </TouchableOpacity>
-    );
-  }
-}
+        <View style={styles.imageContainer}>
+          {
+            (item.source)
+            &&
+            <Text style={styles.sourceBadge}>{item.source.name}</Text>
+          }
+          <ImageBackground source={require('../assets/images/placeholder.jpg')} style={styles.placeholder}>
+            {
+              (item.property.images[0] !== undefined)
+              &&
+              <Image
+                source={{uri: item.property.images[0].thumbnail}}
+                style={styles.image}
+              />
+            }
+          </ImageBackground>      
+          <ImageBackground source={require('../assets/images/placeholder.jpg')} style={styles.placeholder}>
+            {
+              (item.property.images[1] !== undefined)
+              &&
+              <Image
+                source={{uri: item.property.images[1].thumbnail}}
+                style={styles.image}
+              />
+            }
+          </ImageBackground>      
+        </View>
+        <View>
+          <Text style={styles.subheaderText}>{item.property.location.street}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
