@@ -2,14 +2,15 @@ import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import Colors from './constants/Colors';
+import { ExpoTokenProvider } from './contexts/ExpoTokenContext'
 import useCachedResources from './hooks/useCachedResources';
 import AppNavigator from './navigation/AppNavigator';
-import NavigationService from './navigation/NavigationService';
+import * as RootNavigation from './navigation/RootNavigation';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -19,27 +20,22 @@ Notifications.setNotificationHandler({
   }),
 });
 
+Notifications.addNotificationResponseReceivedListener(response => {
+  if (response.notification) {
+    if (response.notification.request.content.data) {
+      RootNavigation.push('AdDetailScreen', { id: response.notification.request.content.data.id });
+    } else {
+      RootNavigation.navigate('Home');
+    }
+  }
+});
+
 export default function App() {
-  const isLoadingComplete = useCachedResources();
   const [expoToken, setExpoToken] = React.useState(null);
-  const notificationResponseListener = useRef();
+  const isLoadingComplete = useCachedResources();
 
   useEffect(() => {
     registerForPushNotifications().then(token => setExpoToken(token));
-
-    notificationResponseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      if (response.notification) {
-        if (response.notification.request.content.data) {
-          NavigationService.push('AdDetail', {id: response.notification.request.content.data.id});
-        } else {
-          NavigationService.navigate('Home');
-        }
-      }
-    });
-
-    return () => {
-      Notifications.removeNotificationSubscription(notificationResponseListener);
-    };
   }, []);
 
   if (!isLoadingComplete) {
@@ -50,9 +46,9 @@ export default function App() {
     <SafeAreaProvider>
       <View style={styles.container}>
         <StatusBar style="dark" backgroundColor={Colors.backgroundColor}/>
-        <AppNavigator screenProps={{expoToken: expoToken}} ref={navigatorRef => {
-          NavigationService.setTopLevelNavigator(navigatorRef);
-        }}/>
+        <ExpoTokenProvider value={expoToken}>
+          <AppNavigator/>
+        </ExpoTokenProvider>
       </View>
     </SafeAreaProvider>
   );

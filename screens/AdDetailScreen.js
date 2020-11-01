@@ -20,7 +20,7 @@ import API from '../constants/Api';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 
-const AdDetailScreen = ({navigation}) => {
+export default function AdDetailScreen({ route }) {
   const [isLoading, setIsLoading] = React.useState(true);
   const [data, setData] = React.useState(null);
   const [galleryVisible, setGalleryVisible] = React.useState(false);
@@ -90,7 +90,7 @@ const AdDetailScreen = ({navigation}) => {
   };
 
   useEffect(() => {
-    const id = navigation.getParam('id');
+    const { id } = route.params;
 
     fetchData(API.host+'/api/adverts/'+id);
   }, []);
@@ -138,10 +138,6 @@ const AdDetailScreen = ({navigation}) => {
     </SafeAreaView>
   );
 };
-
-AdDetailScreen.navigationOptions = () => ({
-  headerShown: false
-});
 
 const styles = StyleSheet.create({
   root: {
@@ -199,5 +195,3 @@ const styles = StyleSheet.create({
     marginTop: Layout.sideMargin,
   },
 });
-
-export default AdDetailScreen;

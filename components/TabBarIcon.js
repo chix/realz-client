@@ -3,11 +3,11 @@ import React from 'react';
 
 import Colors from '../constants/Colors';
 
-export default function TabBarIcon({name, focused}) {
+export default function TabBarIcon({ name, focused }) {
   return (
     <Ionicons
       name={name}
-      size={26}
+      size={30}
       style={{ marginBottom: -3 }}
       color={focused ? Colors.tabIconSelected : Colors.tabIconDefault}
     />

@@ -1,9 +1,24 @@
-import { createAppContainer, createSwitchNavigator } from 'react-navigation';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import * as React from 'react';
 
 import MainTabNavigator from './MainTabNavigator';
+import { navigationRef } from './RootNavigation';
 
-export default createAppContainer(createSwitchNavigator({
-  // You could add another route here for authentication.
-  // Read more at https://reactnavigation.org/docs/en/auth-flow.html
-  Main: MainTabNavigator,
-}));
+export default function AppNavigator() {
+  return (
+    <NavigationContainer ref={navigationRef}>
+      <RootNavigator />
+    </NavigationContainer>
+  );
+}
+
+const Stack = createStackNavigator();
+
+function RootNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Root" component={MainTabNavigator} />
+    </Stack.Navigator>
+  );
+}

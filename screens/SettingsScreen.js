@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import {
   AsyncStorage,
   Picker,
@@ -17,8 +17,9 @@ import API from '../constants/Api';
 import Cities from '../constants/Cities';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
+import ExpoTokenContext from '../contexts/ExpoTokenContext'
 
-const SettingsScreen = ({screenProps}) => {
+export default function SettingsScreen() {
   const [settingsDisabled, setSettingsDisabled] = React.useState(true);
   const [minPriceForLabel, setMinPriceForLabel] = React.useState({
     [Cities.brno.code]: 0,
@@ -51,6 +52,7 @@ const SettingsScreen = ({screenProps}) => {
       cityDistrict: Cities.brno.districtsettings,
     },
   });
+  const expoToken = useContext(ExpoTokenContext);
   const notificationsEnabled = !settingsDisabled && settings.notificationsEnabled;
   const brnoSettings = settings[Cities.brno.code];
   const brnoSettingsEnabled = notificationsEnabled && brnoSettings.enabled;
@@ -195,7 +197,7 @@ const SettingsScreen = ({screenProps}) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        token: screenProps.expoToken,
+        token: expoToken,
         enabled: settings.notificationsEnabled,
         filters: filters,
       }),
@@ -342,10 +344,6 @@ const SettingsScreen = ({screenProps}) => {
   );
 };
 
-SettingsScreen.navigationOptions = () => ({
-  headerShown: false,
-});
-
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -442,5 +440,3 @@ const styles = StyleSheet.create({
     marginBottom: Math.round(Layout.sideMargin / 2),
   },
 });
-
-export default SettingsScreen;

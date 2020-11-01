@@ -1,12 +1,15 @@
 import React from 'react';
 import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 
-export default function AdItem({item, navigation}) {
+export default function AdItem({ item }) {
+  const navigation = useNavigation();
+
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('AdDetail', {id: item.id})}>
+    <TouchableOpacity onPress={() => navigation.navigate('Home', { params: { id: item.id }, screen: 'AdDetailScreen' })}>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>{(item.title.length > 28) ? item.title.substring(0, 28) + '...' : item.title}</Text>

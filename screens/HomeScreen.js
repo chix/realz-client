@@ -16,7 +16,7 @@ import API from '../constants/Api';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 
-const HomeScreen = ({navigation}) => {
+export default function HomeScreen({ navigation }) {
   const [isLoading, setIsLoading] = React.useState(true);
   const [advertType, setAdvertType] = React.useState('sale');
   const [dataSource, setDataSource] = React.useState([]);
@@ -50,7 +50,7 @@ const HomeScreen = ({navigation}) => {
   };
 
   useEffect(() => {
-    const focusListener = navigation.addListener("didFocus", () => {
+    const focusListener = navigation.addListener("focus", () => {
       AsyncStorage.getItem('@Setttings:main')
       .then((settings) => {
         if (settings !== null) {
@@ -72,10 +72,8 @@ const HomeScreen = ({navigation}) => {
       }
     });
 
-    return () => {
-      focusListener.remove();
-    };
-  }, []);
+    return focusListener;
+  }, [navigation]);
 
   // reload if advert type changes
   useEffect(() => {
@@ -95,7 +93,7 @@ const HomeScreen = ({navigation}) => {
       <View style={styles.container}>
         <FlatList
           data={dataSource}
-          renderItem={(item) => <AdItem navigation={navigation} {...item}/>}
+          renderItem={(item) => <AdItem {...item}/>}
           keyExtractor={(item) => item.id.toString()}
           refreshControl={
             <RefreshControl
@@ -113,10 +111,6 @@ const HomeScreen = ({navigation}) => {
   );
 };
 
-HomeScreen.navigationOptions = () => ({
-  headerShown: false
-});
-
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -133,5 +127,3 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
 });
-
-export default HomeScreen;
