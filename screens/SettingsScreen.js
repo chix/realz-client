@@ -56,6 +56,10 @@ export default function SettingsScreen() {
   const notificationsEnabled = !settingsDisabled && settings.notificationsEnabled;
   const brnoSettings = settings[Cities.brno.code];
   const brnoSettingsEnabled = notificationsEnabled && brnoSettings.enabled;
+  const salePriceLimit = 10000000;
+  const salePriceStep = 100000;
+  const rentPriceLimit = 50000;
+  const rentPriceStep = 1000;
 
   const renderDispositionSettings = (cityCode) => {
     const { disposition } = settings[cityCode];
@@ -302,8 +306,8 @@ export default function SettingsScreen() {
             style={styles.slider}
             disabled={!brnoSettingsEnabled}
             minimumValue={0}
-            maximumValue={settings.advertType === 'sale' ? 5000000 : 50000}
-            step={settings.advertType === 'sale' ? 100000 : 1000}
+            maximumValue={settings.advertType === 'sale' ? salePriceLimit : rentPriceLimit}
+            step={settings.advertType === 'sale' ? salePriceStep : rentPriceStep}
             value={minPriceForLabel[Cities.brno.code]}
             onValueChange={(value) => onMinPriceChange(Cities.brno.code, value)}
             onSlidingComplete={(value) => onMinPriceChangeComplete(Cities.brno.code, value)}
@@ -323,8 +327,8 @@ export default function SettingsScreen() {
             style={styles.slider}
             disabled={!brnoSettingsEnabled || settingsDisabled}
             minimumValue={0}
-            maximumValue={settings.advertType === 'sale' ? 5000000 : 50000}
-            step={settings.advertType === 'sale' ? 100000 : 1000}
+            maximumValue={settings.advertType === 'sale' ? salePriceLimit : rentPriceLimit}
+            step={settings.advertType === 'sale' ? salePriceStep : salePriceStep}
             value={maxPriceForLabel[Cities.brno.code]}
             onValueChange={(value) => onMaxPriceChange(Cities.brno.code, value)}
             onSlidingComplete={(value) => onMaxPriceChangeComplete(Cities.brno.code, value)}
