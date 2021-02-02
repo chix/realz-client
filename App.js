@@ -20,23 +20,21 @@ Notifications.setNotificationHandler({
   }),
 });
 
-Notifications.addNotificationResponseReceivedListener(response => {
-  if (response.notification) {
-    if (response.notification.request.content.data) {
-      RootNavigation.push('AdDetailScreen', { id: response.notification.request.content.data.id });
-    } else {
-      RootNavigation.navigate('Home');
-    }
-  }
-});
-
 export default function App() {
   const [expoToken, setExpoToken] = React.useState(null);
   const isLoadingComplete = useCachedResources();
+  const lastNotificationResponse = Notifications.useLastNotificationResponse();
 
   useEffect(() => {
     registerForPushNotifications().then(token => setExpoToken(token));
-  }, []);
+    if (
+      lastNotificationResponse &&
+      lastNotificationResponse.notification.request.content.data.id &&
+      lastNotificationResponse.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER
+    ) {
+      RootNavigation.push('AdDetailScreen', { id: lastNotificationResponse.notification.request.content.data.id });
+    }
+  }, [lastNotificationResponse]);
 
   if (!isLoadingComplete) {
     return null;

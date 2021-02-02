@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import {
-  AsyncStorage,
   ActivityIndicator,
   FlatList,
   Platform,
@@ -10,6 +9,7 @@ import {
   ToastAndroid,
   View
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage'
 
 import AdItem from '../components/AdItem';
 import API from '../constants/Api';

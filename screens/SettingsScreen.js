@@ -1,17 +1,17 @@
 import React, { useContext, useEffect } from 'react';
 import {
-  AsyncStorage,
-  Picker,
   Platform,
   SafeAreaView,
   ScrollView,
-  Slider,
   StyleSheet,
   Switch,
   Text,
   ToastAndroid,
   View
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+import { Picker } from '@react-native-community/picker';
+import Slider from '@react-native-community/slider';
 
 import API from '../constants/Api';
 import Cities from '../constants/Cities';
