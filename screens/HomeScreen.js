@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -9,7 +9,7 @@ import {
   ToastAndroid,
   View
 } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import AdItem from '../components/AdItem';
 import API from '../constants/Api';
@@ -17,9 +17,9 @@ import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 
 export default function HomeScreen({ navigation }) {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [advertType, setAdvertType] = React.useState('sale');
-  const [dataSource, setDataSource] = React.useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [advertType, setAdvertType] = useState('sale');
+  const [dataSource, setDataSource] = useState([]);
 
   const fetchData = async () => {
     setIsLoading(true);

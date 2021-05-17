@@ -1,5 +1,5 @@
 import * as WebBrowser from 'expo-web-browser';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -21,10 +21,10 @@ import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 
 export default function AdDetailScreen({ route }) {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [data, setData] = React.useState(null);
-  const [galleryVisible, setGalleryVisible] = React.useState(false);
-  const [galleryIndex, setGalleryIndex] = React.useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState(null);
+  const [galleryVisible, setGalleryVisible] = useState(false);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   const onClick = () => {
     WebBrowser.openBrowserAsync(data.externalUrl);

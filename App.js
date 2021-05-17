@@ -1,8 +1,7 @@
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
-import * as Permissions from 'expo-permissions';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -21,12 +20,12 @@ Notifications.setNotificationHandler({
 });
 
 export default function App() {
-  const [expoToken, setExpoToken] = React.useState(null);
+  const [expoToken, setExpoToken] = useState(null);
   const isLoadingComplete = useCachedResources();
   const lastNotificationResponse = Notifications.useLastNotificationResponse();
 
   useEffect(() => {
-    registerForPushNotifications().then(token => setExpoToken(token));
+    registerForPushNotificationsAsync().then(token => setExpoToken(token));
     if (
       lastNotificationResponse &&
       lastNotificationResponse.notification.request.content.data.id &&
@@ -52,14 +51,14 @@ export default function App() {
   );
 };
 
-async function registerForPushNotifications() {
+async function registerForPushNotificationsAsync() {
   let token;
 
   if (Constants.isDevice) {
-    const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
     if (existingStatus !== 'granted') {
-      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+      const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
     }
     if (finalStatus !== 'granted') {

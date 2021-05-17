@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Platform,
   SafeAreaView,
@@ -9,8 +9,8 @@ import {
   ToastAndroid,
   View
 } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
-import { Picker } from '@react-native-community/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Picker } from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
 
 import API from '../constants/Api';
@@ -20,14 +20,14 @@ import Layout from '../constants/Layout';
 import ExpoTokenContext from '../contexts/ExpoTokenContext'
 
 export default function SettingsScreen() {
-  const [settingsDisabled, setSettingsDisabled] = React.useState(true);
-  const [minPriceForLabel, setMinPriceForLabel] = React.useState({
+  const [settingsDisabled, setSettingsDisabled] = useState(true);
+  const [minPriceForLabel, setMinPriceForLabel] = useState({
     [Cities.brno.code]: 0,
   });
-  const [maxPriceForLabel, setMaxPriceForLabel] = React.useState({
+  const [maxPriceForLabel, setMaxPriceForLabel] = useState({
     [Cities.brno.code]: 0,
   });
-  const [settings, setSettings] = React.useState({
+  const [settings, setSettings] = useState({
     advertType: 'sale',
     notificationsEnabled: false,
     [Cities.brno.code]: {
