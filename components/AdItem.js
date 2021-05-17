@@ -23,6 +23,11 @@ export default function AdItem({ item }) {
             &&
             <Text style={styles.sourceBadge}>{item.source.name}</Text>
           }
+          {
+            (item.previousPrice !== undefined && item.previousPrice !== null && item.previousPrice !== item.price)
+            &&
+            <Text style={styles.previousPriceBadge}>{item.previousPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč'}</Text>
+          }
           <ImageBackground source={require('../assets/images/placeholder.jpg')} style={styles.placeholder}>
             {
               (item.property.images[0] !== undefined)
@@ -80,6 +85,19 @@ const styles = StyleSheet.create({
     zIndex: 1,
     color: Colors.badgeText,
     backgroundColor: Colors.badgeBackground,
+  },
+  previousPriceBadge: {
+    position: 'absolute',
+    right: 3,
+    top: 45,
+    paddingTop: 3,
+    paddingBottom: 3,
+    paddingLeft: 8,
+    paddingRight: 8,
+    zIndex: 1,
+    color: Colors.badgeText,
+    backgroundColor: Colors.badgeBackground,
+    textDecorationLine: 'line-through',
   },
   image: {
     width: Math.round(Layout.width / 2) - Layout.sideMargin - 3,

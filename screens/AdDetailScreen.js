@@ -115,7 +115,10 @@ export default function AdDetailScreen({ route }) {
         <Text style={styles.headerText}>{data.title}</Text>
         <Text style={styles.subheaderText}>{data.property.location.street}</Text>
         <Text style={styles.subheaderText}>
-          {(data.price !== undefined && data.price !== null) ? data.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč' : ''}
+          {(data.price !== undefined && data.price !== null) ? data.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč ' : ' '}
+          {(data.previousPrice !== undefined && data.previousPrice !== null && data.previousPrice !== data.price) &&
+            <Text style={styles.previousPriceText}>{data.previousPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč'}</Text>
+          }
         </Text>
         <View style={styles.imageContainer}>
           { renderImageThumbnails() }
@@ -186,6 +189,12 @@ const styles = StyleSheet.create({
     fontSize: Layout.subheaderFontSize,
     color: Colors.text,
     textAlign: 'center',
+  },
+  previousPriceText: {
+    fontSize: Layout.subheaderFontSize,
+    color: Colors.text,
+    textAlign: 'center',
+    textDecorationLine: 'line-through',
   },
   text: {
     color: Colors.text,
