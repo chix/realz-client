@@ -18,16 +18,28 @@ export default function AdItem({ item }) {
           </Text>
         </View>
         <View style={styles.imageContainer}>
-          {
-            (item.source)
-            &&
-            <Text style={styles.sourceBadge}>{item.source.name}</Text>
-          }
-          {
-            (item.previousPrice !== undefined && item.previousPrice !== null && item.previousPrice !== item.price)
-            &&
-            <Text style={styles.previousPriceBadge}>{item.previousPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč'}</Text>
-          }
+          <View style={styles.badgeContainer}>
+            {
+              (item.source)
+              &&
+              <Text style={styles.badge}>{item.source.name}</Text>
+            }
+            {
+              (item.previousPrice !== undefined && item.previousPrice !== null && item.previousPrice !== item.price)
+              &&
+              <Text style={[styles.badge, styles.badgePreviousPrice]}>{item.previousPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč'}</Text>
+            }
+            {
+              (item.property.floor !== undefined && item.property.floor !== null)
+              &&
+              <Text style={styles.badge}>{item.property.floor}{item.property.floor === 1 ? 'st' : item.property.floor === 2 ? 'nd' : 'th'} floor</Text>
+            }
+            {
+              (item.property.construction !== null)
+              &&
+              <Text style={styles.badge}>{item.property.construction.code}</Text>
+            }
+          </View>
           <ImageBackground source={require('../assets/images/placeholder.jpg')} style={styles.placeholder}>
             {
               (item.property.images[0] !== undefined)
@@ -74,22 +86,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  sourceBadge: {
+  badgeContainer: {
     position: 'absolute',
     right: 3,
     top: 15,
-    paddingTop: 3,
-    paddingBottom: 3,
-    paddingLeft: 8,
-    paddingRight: 8,
     zIndex: 1,
-    color: Colors.badgeText,
-    backgroundColor: Colors.badgeBackground,
   },
-  previousPriceBadge: {
-    position: 'absolute',
-    right: 3,
-    top: 45,
+  badge: {
+    marginBottom: 3,
     paddingTop: 3,
     paddingBottom: 3,
     paddingLeft: 8,
@@ -97,6 +101,9 @@ const styles = StyleSheet.create({
     zIndex: 1,
     color: Colors.badgeText,
     backgroundColor: Colors.badgeBackground,
+    alignSelf: 'flex-end',
+  },
+  badgePreviousPrice: {
     textDecorationLine: 'line-through',
   },
   image: {
