@@ -11,7 +11,6 @@ import {
   View
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Picker } from '@react-native-picker/picker';
 
 import API from '../constants/Api';
 import Colors from '../constants/Colors';
@@ -19,19 +18,14 @@ import Layout from '../constants/Layout';
 import ExpoTokenContext from '../contexts/ExpoTokenContext'
 import NotificationFilters from '../components/NotificationFilters';
 
-export default function SettingsScreen() {
+export default function NotificationsScreen() {
   const [settingsDisabled, setSettingsDisabled] = useState(true);
   const [settings, setSettings] = useState({
     notificationsEnabled: false,
-    advertType: 'sale',
     filters: [],
   });
   const expoToken = useContext(ExpoTokenContext);
   const notificationsEnabled = !settingsDisabled && settings.notificationsEnabled;
-
-  const onAdvertTypeChange = (value) => {
-    persistSettings({advertType: value});
-  };
 
   const onNotificationsEnabledChange = (value) => {
     persistSettings({notificationsEnabled: value});
@@ -165,23 +159,6 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.root}>
       <ScrollView style={styles.container}>
-        <View style={styles.advertTypePickerContainer}>
-          <Text style={styles.textLabel}>
-            Main list ad type
-          </Text>
-          <Text style={styles.textLabel}></Text>
-          <Picker
-            selectedValue={settings.advertType}
-            onValueChange={onAdvertTypeChange}
-            style={styles.picker}
-          >
-            <Picker.Item label="Sale" value="sale" />
-            <Picker.Item label="Rent" value="rent" />
-          </Picker>
-        </View>
-
-        <View style={styles.separator}/>
-
         <View style={styles.notificationSwitchContainer}>
           <Text style={!settingsDisabled ? styles.textLabel : styles.textLabelDisabled}>
             Enable notifications
@@ -226,13 +203,6 @@ const styles = StyleSheet.create({
     borderWidth: 0.2,
     borderColor: Colors.text,
     margin: Layout.sideMargin,
-  },
-  advertTypePickerContainer: {
-    flex: 1,
-    marginLeft: Layout.sideMargin,
-    marginRight: Layout.sideMargin,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   notificationSwitchContainer: {
     flex: 1,

@@ -9,16 +9,14 @@ import {
   ToastAndroid,
   View
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import AdItem from '../components/AdItem';
 import API from '../constants/Api';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 
-export default function HomeScreen({ navigation }) {
+export default function AdList({ advertType }) {
   const [isLoading, setIsLoading] = useState(true);
-  const [advertType, setAdvertType] = useState('sale');
   const [dataSource, setDataSource] = useState([]);
 
   const fetchData = async () => {
@@ -50,35 +48,8 @@ export default function HomeScreen({ navigation }) {
   };
 
   useEffect(() => {
-    const focusListener = navigation.addListener("focus", () => {
-      AsyncStorage.getItem('@Setttings:main')
-      .then((settings) => {
-        if (settings !== null) {
-          const parsedSettings = JSON.parse(settings);
-          if (parsedSettings.advertType && advertType !== parsedSettings.advertType) {
-            setAdvertType(parsedSettings.advertType);
-          }
-        }
-      });
-    });
-
-    AsyncStorage.getItem('@Setttings:main')
-    .then((settings) => {
-      if (settings !== null) {
-        const parsedSettings = JSON.parse(settings);
-        if (parsedSettings.advertType) {
-          setAdvertType(parsedSettings.advertType);
-        }
-      }
-    });
-
-    return focusListener;
-  }, [navigation]);
-
-  // reload if advert type changes
-  useEffect(() => {
     fetchData();
-  }, [advertType]);
+  }, []);
 
   if (isLoading) {
     return (
@@ -93,7 +64,7 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.container}>
         <FlatList
           data={dataSource}
-          renderItem={(item) => <AdItem {...item}/>}
+          renderItem={(item) => <AdItem advertType={advertType} {...item}/>}
           keyExtractor={(item) => item.id.toString()}
           refreshControl={
             <RefreshControl

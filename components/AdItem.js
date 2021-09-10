@@ -5,11 +5,11 @@ import { useNavigation } from '@react-navigation/native';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 
-export default function AdItem({ item }) {
+export default function AdItem({ advertType, item }) {
   const navigation = useNavigation();
 
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('Home', { params: { id: item.id }, screen: 'AdDetailScreen' })}>
+    <TouchableOpacity onPress={() => navigation.navigate(advertType.charAt(0).toUpperCase() + advertType.slice(1), { params: { id: item.id }, screen: 'AdDetailScreen' })}>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>{(item.title.length > 28) ? item.title.substring(0, 28) + '...' : item.title}</Text>

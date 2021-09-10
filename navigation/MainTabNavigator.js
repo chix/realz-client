@@ -4,17 +4,18 @@ import * as React from 'react';
 
 import TabBarIcon from '../components/TabBarIcon';
 import AdDetailScreen from '../screens/AdDetailScreen';
-import HomeScreen from '../screens/HomeScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+import RentScreen from '../screens/RentScreen';
+import SaleScreen from '../screens/SaleScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
 
 const BottomTab = createBottomTabNavigator();
 
 export default function MainTabNavigator() {
   return (
-    <BottomTab.Navigator initialRouteName="Home">
+    <BottomTab.Navigator initialRouteName="Sale">
       <BottomTab.Screen
-        name="Home"
-        component={HomeTabNavigator}
+        name="Sale"
+        component={SaleTabNavigator}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
@@ -25,13 +26,25 @@ export default function MainTabNavigator() {
         }}
       />
       <BottomTab.Screen
-        name="Settings"
-        component={SettingsTabNavigator}
+        name="Rent"
+        component={RentTabNavigator}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
               focused={focused}
-              name={Platform.OS === 'ios' ? `ios-options${focused ? '' : '-outline'}` : 'md-options'}
+              name={Platform.OS === 'ios' ? `ios-calendar${focused ? '' : '-outline'}` : 'md-calendar'}
+            />
+          ),
+        }}
+      />
+      <BottomTab.Screen
+        name="Notifications"
+        component={NotificationsTabNavigator}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              name={Platform.OS === 'ios' ? `ios-notifications${focused ? '' : '-outline'}` : 'md-notifications'}
             />
           ),
         }}
@@ -40,32 +53,49 @@ export default function MainTabNavigator() {
   );
 }
 
-const HomeTabStack = createStackNavigator();
+const SaleTabStack = createStackNavigator();
 
-function HomeTabNavigator() {
+function SaleTabNavigator() {
   return (
-    <HomeTabStack.Navigator screenOptions={{ headerShown: false }}>
-      <HomeTabStack.Screen
-        name="HomeScreen"
-        component={HomeScreen}
+    <SaleTabStack.Navigator screenOptions={{ headerShown: false }}>
+      <SaleTabStack.Screen
+        name="SaleScreen"
+        component={SaleScreen}
       />
-      <HomeTabStack.Screen
+      <SaleTabStack.Screen
         name="AdDetailScreen"
         component={AdDetailScreen}
       />
-    </HomeTabStack.Navigator>
+    </SaleTabStack.Navigator>
   );
 }
 
-const SettingsTabStack = createStackNavigator();
+const RentTabStack = createStackNavigator();
 
-function SettingsTabNavigator() {
+function RentTabNavigator() {
   return (
-    <SettingsTabStack.Navigator screenOptions={{ headerShown: false }}>
-      <SettingsTabStack.Screen
-        name="SettingsScreen"
-        component={SettingsScreen}
+    <RentTabStack.Navigator screenOptions={{ headerShown: false }}>
+      <RentTabStack.Screen
+        name="RentScreen"
+        component={RentScreen}
       />
-    </SettingsTabStack.Navigator>
+      <RentTabStack.Screen
+        name="AdDetailScreen"
+        component={AdDetailScreen}
+      />
+    </RentTabStack.Navigator>
+  );
+}
+
+const NotificationsTabStack = createStackNavigator();
+
+function NotificationsTabNavigator() {
+  return (
+    <NotificationsTabStack.Navigator screenOptions={{ headerShown: false }}>
+      <NotificationsTabStack.Screen
+        name="NotificationsScreen"
+        component={NotificationsScreen}
+      />
+    </NotificationsTabStack.Navigator>
   );
 }
