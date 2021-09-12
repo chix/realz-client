@@ -18,11 +18,12 @@ import Layout from '../constants/Layout';
 export default function AdList({ advertType }) {
   const [isLoading, setIsLoading] = useState(true);
   const [dataSource, setDataSource] = useState([]);
+  const [page, setPage] = useState(1);
 
   const fetchData = async () => {
-    setIsLoading(true);
+    setIsLoading(page === 1 ? true : false);
 
-    return fetch(API.host+'/api/adverts?exists[deletedAt]=false&order[id]=desc&type.code=' + advertType, {
+    return fetch(API.host+'/api/adverts?exists[deletedAt]=false&order[id]=desc&type.code=' + advertType + '&page=' + page, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -36,7 +37,7 @@ export default function AdList({ advertType }) {
     })
     .then((responseJson) => {
       setIsLoading(false);
-      setDataSource(responseJson);
+      setDataSource(page === 1 ? responseJson : dataSource.concat(responseJson));
     })
     .catch(() => {
       setIsLoading(false);
@@ -47,9 +48,22 @@ export default function AdList({ advertType }) {
     });
   };
 
+  const addPage = () => {
+    setPage(page + 1);
+  }
+
+  const refresh = () => {
+    setPage(0);
+  }
+
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (page === 0) {
+      setIsLoading(true);
+      setPage(1);
+    } else {
+      fetchData();
+    }
+  }, [page]);
 
   if (isLoading) {
     return (
@@ -66,10 +80,11 @@ export default function AdList({ advertType }) {
           data={dataSource}
           renderItem={(item) => <AdItem advertType={advertType} {...item}/>}
           keyExtractor={(item) => item.id.toString()}
+          onEndReached={addPage}
           refreshControl={
             <RefreshControl
               refreshing={isLoading}
-              onRefresh={fetchData}
+              onRefresh={refresh}
               tintColor={Colors.backgroundColor}
               titleColor={Colors.backgroundColor}
               colors={[Colors.tintColor, Colors.tintColor, Colors.tintColor]}
