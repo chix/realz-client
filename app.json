@@ -11,6 +11,8 @@
     "githubUrl": "https://github.com/chix/realz-client",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
+    "scheme": "realz",
+    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",

@@ -4,12 +4,16 @@ import { useNavigation } from '@react-navigation/native';
 
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
+import { Advert } from '../types';
 
-export default function AdItem({ advertType, item }) {
+export default function AdListItem({ advertType, item }: { advertType: string, item: Advert }) {
   const navigation = useNavigation();
 
   return (
-    <TouchableOpacity onPress={() => navigation.navigate(advertType.charAt(0).toUpperCase() + advertType.slice(1), { params: { id: item.id }, screen: 'AdDetailScreen' })}>
+    <TouchableOpacity onPress={() => advertType === 'sale'
+      ? navigation.navigate('Root', { screen: 'Sale', params: { screen: 'SaleDetail', params: { id: item.id } } })
+      : navigation.navigate('Root', { screen: 'Rent', params: { screen: 'RentDetail', params: { id: item.id } } })
+    }>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>{(item.title.length > 28) ? item.title.substring(0, 28) + '...' : item.title}</Text>

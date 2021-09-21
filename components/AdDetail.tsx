@@ -19,26 +19,28 @@ import ImageGallery from 'react-native-image-viewing';
 import API from '../constants/Api';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
+import { Advert, PropertyImage } from '../types';
 
-export default function AdDetailScreen({ route }) {
+export default function AdDetail({ id }: { id: number }) {
   const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<Advert>();
   const [galleryVisible, setGalleryVisible] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
 
   const onClick = () => {
-    WebBrowser.openBrowserAsync(data.externalUrl);
+    if (data) {
+      WebBrowser.openBrowserAsync(data.externalUrl);
+    }
   };
 
   const renderImageThumbnails = () => {
-    return data.property.images.map((image, index) => {
+    return data?.property.images.map((image: PropertyImage, index: number) => {
       return (
         <ImageBackground source={require('../assets/images/placeholder.jpg')} style={styles.placeholder} key={image.image}>
           <TouchableOpacity onPress={() => onGalleryOpen(index)}>
             <Image
               source={{uri: image.thumbnail}}
               style={styles.image}
-              onPress={onGalleryOpen}
             />
           </TouchableOpacity>
         </ImageBackground>      
@@ -46,13 +48,16 @@ export default function AdDetailScreen({ route }) {
     });
   };
 
-  const onGalleryOpen = (index) => {
+  const onGalleryOpen = (index: number) => {
     setGalleryIndex(index);
     setGalleryVisible(true);
   };
 
   const getGalleryImageUrls = () => {
-    return data.property.images.map((image) => {
+    if (!data) {
+      return [];
+    }
+    return data.property.images.map((image: PropertyImage) => {
       return { uri: image.image };
     });
   };
@@ -61,7 +66,7 @@ export default function AdDetailScreen({ route }) {
     setGalleryVisible(false);
   };
 
-  const fetchData = async (href) => {
+  const fetchData = async (href: string) => {
     setIsLoading(true);
 
     return fetch(href, {
@@ -82,7 +87,7 @@ export default function AdDetailScreen({ route }) {
     })
     .catch(() =>{
       setIsLoading(false);
-      setData(null);
+      setData(undefined);
       if (Platform.OS === 'android') {
         ToastAndroid.showWithGravity('Could not fetch data, no connection.', ToastAndroid.LONG, ToastAndroid.BOTTOM);
       }
@@ -90,10 +95,8 @@ export default function AdDetailScreen({ route }) {
   };
 
   useEffect(() => {
-    const { id } = route.params;
-
     fetchData(API.host+'/api/adverts/'+id);
-  }, []);
+  }, [id]);
 
   if (isLoading) {
     return (
@@ -112,11 +115,11 @@ export default function AdDetailScreen({ route }) {
   return (
     <SafeAreaView style={styles.root}>
       <ScrollView style={styles.container}>
-        <Text style={styles.headerText}>{data.title}</Text>
-        <Text style={styles.subheaderText}>{data.property.location.street}</Text>
+        <Text style={styles.headerText}>{data?.title}</Text>
+        <Text style={styles.subheaderText}>{data?.property.location.street}</Text>
         <Text style={styles.subheaderText}>
-          {(data.price !== undefined && data.price !== null) ? data.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč ' : ' '}
-          {(data.previousPrice !== undefined && data.previousPrice !== null && data.previousPrice !== data.price) &&
+          {(data?.price !== undefined && data.price !== null) ? data.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč ' : ' '}
+          {(data?.previousPrice !== undefined && data.previousPrice !== null && data.previousPrice !== data.price) &&
             <Text style={styles.previousPriceText}>{data.previousPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč'}</Text>
           }
         </Text>
@@ -124,9 +127,9 @@ export default function AdDetailScreen({ route }) {
           { renderImageThumbnails() }
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.text}>{data.description}</Text>
+          <Text style={styles.text}>{data?.description}</Text>
           <View style={styles.spacer}/>
-          <Button color={Colors.button} title={'View on '+data.source.name} onPress={onClick}/>
+          <Button color={Colors.button} title={'View on '+data?.source.name} onPress={onClick}/>
           <View style={styles.spacer}/>
           <View style={styles.spacer}/>
         </View>
@@ -181,11 +184,15 @@ const styles = StyleSheet.create({
     marginTop: Math.round(Layout.sideMargin / 2),
   },
   headerText: {
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
     fontSize: Layout.headerFontSize,
     color: Colors.text,
     textAlign: 'center',
   },
   subheaderText: {
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
     fontSize: Layout.subheaderFontSize,
     color: Colors.text,
     textAlign: 'center',

@@ -32,8 +32,8 @@ export default {
       '551431': 'Útěchov',
       '551368': 'Žebětín',
       'unassigned': 'Unassigned',
-    },
-    districtsettings: {
+    } as { [key: string]: string},
+    districtSettings: {
       '550973': false,
       '550990': false,
       '551007': false,
@@ -64,6 +64,6 @@ export default {
       '551431': false,
       '551368': false,
       'unassigned': false,
-    }
+    } as { [key: string]: boolean}
   }
 };

@@ -11,8 +11,13 @@ import Slider from '@react-native-community/slider';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 import Cities from '../constants/Cities';
+import { Filters, FiltersPartial } from '../types';
 
-export default function NotificationFilters({ filtersInput, filtersKey, submitFilters }) {
+export default function NotificationFilters({ filtersInput, filtersKey, submitFilters }: {
+  filtersInput: Filters,
+  filtersKey: string,
+  submitFilters: (key: string, filters: Filters) => Promise<void>
+}) {
   const [filters, setFilters] = useState(filtersInput ?? {
     advertType: 'sale',
     minPrice: 0,
@@ -33,7 +38,7 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
       'other': false,
     },
     cityCode: Cities.brno.code,
-    cityDistrict: Cities.brno.districtsettings,
+    cityDistrict: Cities.brno.districtSettings,
   });
   const [minPrice, setMinPrice] = useState(filtersInput?.minPrice ?? 0);
   const [maxPrice, setMaxPrice] = useState(filtersInput?.maxPrice ?? 0);
@@ -42,54 +47,56 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
   const salePriceStep = 100000;
   const rentPriceLimit = 50000;
   const rentPriceStep = 1000;
+  let minPriceSliderTimeoutId: NodeJS.Timeout;
+  let maxPriceSliderTimeoutId: NodeJS.Timeout;
 
-  const onAdvertTypeChange = (value) => {
+  const onAdvertTypeChange = (value: string) => {
     persistFilters({advertType: value});
   };
 
-  const onMinPriceChange = (value) => {
+  const onMinPriceChange = (value: number) => {
     setMinPrice(value);
   };
 
-  const onMinPriceChangeComplete = (value) => {
+  const onMinPriceChangeComplete = (value: number) => {
     clearTimeout(minPriceSliderTimeoutId)
-    const minPriceSliderTimeoutId = setTimeout(() => {
+    minPriceSliderTimeoutId = setTimeout(() => {
       const f = JSON.parse(JSON.stringify(filters));
       f.minPrice = value;
       persistFilters(f);
     }, 50)
   };
 
-  const onMaxPriceChange = (value) => {
+  const onMaxPriceChange = (value: number) => {
     setMaxPrice(value);
   };
 
-  const onMaxPriceChangeComplete = (value) => {
+  const onMaxPriceChangeComplete = (value: number) => {
     clearTimeout(maxPriceSliderTimeoutId)
-    const maxPriceSliderTimeoutId = setTimeout(() => {
+    maxPriceSliderTimeoutId = setTimeout(() => {
       const f = JSON.parse(JSON.stringify(filters));
       f.maxPrice = value;
       persistFilters(f);
     }, 50)
   }
 
-  const onDispositionEnabledChange = (disposition, value) => {
+  const onDispositionEnabledChange = (disposition: string, value: boolean) => {
     const f = JSON.parse(JSON.stringify(filters));
     f.disposition[disposition] = value;
     persistFilters(f);
   };
 
-  const onCityDistrictEnabledChange = (cityDistrict, value) => {
+  const onCityDistrictEnabledChange = (cityDistrict: string, value: boolean) => {
     const f = JSON.parse(JSON.stringify(filters));
     f.cityDistrict[cityDistrict] = value;
     persistFilters(f);
   };
 
-  const mergeFilters = (newFilters) => {
+  const mergeFilters = (newFilters: FiltersPartial) => {
     return {...filters, ...newFilters};
   };
 
-  const persistFilters = (newFilters) => {
+  const persistFilters = (newFilters: FiltersPartial) => {
     const filters = mergeFilters(newFilters);
 
     submitFilters(filtersKey, filters).then(

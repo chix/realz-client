@@ -3,7 +3,7 @@ import React from 'react';
 
 import Colors from '../constants/Colors';
 
-export default function TabBarIcon({ name, focused }) {
+export default function TabBarIcon({ name, focused }: { name: React.ComponentProps<typeof Ionicons>['name'], focused: boolean }) {
   return (
     <Ionicons
       name={name}

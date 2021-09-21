@@ -8,8 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Colors from './constants/Colors';
 import { ExpoTokenProvider } from './contexts/ExpoTokenContext'
 import useCachedResources from './hooks/useCachedResources';
-import AppNavigator from './navigation/AppNavigator';
-import * as RootNavigation from './navigation/RootNavigation';
+import Navigation from './navigation';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -20,20 +19,12 @@ Notifications.setNotificationHandler({
 });
 
 export default function App() {
-  const [expoToken, setExpoToken] = useState(null);
+  const [expoToken, setExpoToken] = useState<string|null>(null);
   const isLoadingComplete = useCachedResources();
-  const lastNotificationResponse = Notifications.useLastNotificationResponse();
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => setExpoToken(token));
-    if (
-      lastNotificationResponse &&
-      lastNotificationResponse.notification.request.content.data.id &&
-      lastNotificationResponse.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER
-    ) {
-      RootNavigation.push('AdDetailScreen', { id: lastNotificationResponse.notification.request.content.data.id });
-    }
-  }, [lastNotificationResponse]);
+  }, []);
 
   if (!isLoadingComplete) {
     return null;
@@ -42,9 +33,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <View style={styles.container}>
-        <StatusBar style="dark" backgroundColor={Colors.backgroundColor}/>
+        <StatusBar style="dark" backgroundColor={Colors.background}/>
         <ExpoTokenProvider value={expoToken}>
-          <AppNavigator/>
+          <Navigation/>
         </ExpoTokenProvider>
       </View>
     </SafeAreaProvider>
@@ -52,7 +43,7 @@ export default function App() {
 };
 
 async function registerForPushNotificationsAsync() {
-  let token;
+  let token = null;
 
   if (Constants.isDevice) {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -62,7 +53,7 @@ async function registerForPushNotificationsAsync() {
       finalStatus = status;
     }
     if (finalStatus !== 'granted') {
-      return;
+      return null;
     }
     token = (await Notifications.getExpoPushTokenAsync()).data;
   }
@@ -82,6 +73,6 @@ async function registerForPushNotificationsAsync() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundColor,
+    backgroundColor: Colors.background,
   },
 });

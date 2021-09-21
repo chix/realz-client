@@ -10,12 +10,13 @@ import {
   View
 } from 'react-native';
 
-import AdItem from '../components/AdItem';
+import AdListItem from '../components/AdListItem';
 import API from '../constants/Api';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
+import { Advert } from '../types';
 
-export default function AdList({ advertType }) {
+export default function AdList({ advertType }: { advertType: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [dataSource, setDataSource] = useState([]);
   const [page, setPage] = useState(1);
@@ -78,15 +79,15 @@ export default function AdList({ advertType }) {
       <View style={styles.container}>
         <FlatList
           data={dataSource}
-          renderItem={(item) => <AdItem advertType={advertType} {...item}/>}
-          keyExtractor={(item) => item.id.toString()}
+          renderItem={(item) => <AdListItem advertType={advertType} {...item}/>}
+          keyExtractor={(item: Advert) => item.id.toString()}
           onEndReached={addPage}
           refreshControl={
             <RefreshControl
               refreshing={isLoading}
               onRefresh={refresh}
-              tintColor={Colors.backgroundColor}
-              titleColor={Colors.backgroundColor}
+              tintColor={Colors.background}
+              titleColor={Colors.background}
               colors={[Colors.tintColor, Colors.tintColor, Colors.tintColor]}
             />
           }

@@ -17,78 +17,82 @@ import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 import ExpoTokenContext from '../contexts/ExpoTokenContext'
 import NotificationFilters from '../components/NotificationFilters';
+import { Filters, FiltersPayload, Settings, SettingsPartial } from '../types';
 
 export default function NotificationsScreen() {
   const [settingsDisabled, setSettingsDisabled] = useState(true);
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<Settings>({
     notificationsEnabled: false,
-    filters: [],
+    filters: {},
   });
   const expoToken = useContext(ExpoTokenContext);
   const notificationsEnabled = !settingsDisabled && settings.notificationsEnabled;
 
-  const onNotificationsEnabledChange = (value) => {
+  const onNotificationsEnabledChange = (value: boolean) => {
     persistSettings({notificationsEnabled: value});
   };
 
-  const addNotificationFilter = (filter) => {
+  const addNotificationFilter = (filter?: Filters) => {
     const s = JSON.parse(JSON.stringify(settings));
     s.filters.push(filter);
     setSettings(mergeSettings(s));
   }
 
-  const removeNotificationFilter = (key) => {
+  const removeNotificationFilter = (key: string) => {
     const s = JSON.parse(JSON.stringify(settings));
     s.filters.splice(key, 1);
     persistSettings(s);
   }
 
-  const onFiltersSubmit = async (key, filters) => {
+  const onFiltersSubmit = async (key: string, filters: Filters) => {
     const s = JSON.parse(JSON.stringify(settings));
     s.filters[key] = filters;
     return persistSettings(s);
   }
 
-  const mergeSettings = (newSettings) => {
+  const mergeSettings = (newSettings: SettingsPartial) => {
     return {...settings, ...newSettings};
   };
 
-  const persistSettings = async (newSettings) => {
+  const persistSettings = async (newSettings: SettingsPartial) => {
     const settings = mergeSettings(newSettings)
 
-    let filtersPayload = [];
+    let filtersPayload: FiltersPayload[] = [];
 
-    settings.filters.forEach(filters => {
-      let payload = {};
-
+    Object.values(settings.filters).forEach((filters) => {
       if (!filters) {
         return;
       }
 
-      payload.advertType = filters.advertType;
-      payload.cityCode = filters.cityCode;
-      payload.cityDistrict = Object.keys(filters.cityDistrict).filter((key) => {
-        return filters.cityDistrict[key];
-      }).map((key) => {
-        return key;
-      });
-      payload.disposition = Object.keys(filters.disposition).filter((key) => {
-        return filters.disposition[key];
-      }).map((key) => {
-        return key;
-      });
+      let payload: FiltersPayload = {
+        advertType: filters.advertType,
+        cityCode: filters.cityCode,
+        cityDistrict: Object.keys(filters.cityDistrict).filter((key) => {
+          return filters.cityDistrict[key];
+        }).map((key) => {
+          return key;
+        }),
+        disposition: Object.keys(filters.disposition).filter((key) => {
+          return filters.disposition[key];
+        }).map((key) => {
+          return key;
+        })
+      };
+
       if (filters.minPrice !== 0) {
         if (payload.price === undefined) {
           payload.price = {};
         }
         payload.price.gte = filters.minPrice;
       }
+
       if (filters.maxPrice !== 0) {
         if (payload.price === undefined) {
           payload.price = {};
         }
         payload.price.lte = filters.maxPrice;
       }
+
       filtersPayload.push(payload);
     });
 
