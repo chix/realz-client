@@ -67,11 +67,13 @@ export default function NotificationsScreen() {
       let payload: FiltersPayload = {
         advertType: filters.advertType,
         cityCode: filters.cityCode,
-        cityDistrict: Object.keys(filters.cityDistrict).filter((key) => {
-          return filters.cityDistrict[key];
-        }).map((key) => {
-          return key;
-        }),
+        cityDistrict: filters.cityDistrict
+          ? Object.keys(filters.cityDistrict).filter((key) => {
+            return filters.cityDistrict[key];
+          }).map((key) => {
+            return key;
+          })
+          : undefined,
         disposition: Object.keys(filters.disposition).filter((key) => {
           return filters.disposition[key];
         }).map((key) => {
@@ -225,11 +227,6 @@ const styles = StyleSheet.create({
   },
   text: {
     color: Colors.text,
-  },
-  picker: {
-    height: 24,
-    width: 100,
-    color: Colors.text
   },
   separator: {
     borderWidth: 0.2,

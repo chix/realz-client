@@ -54,6 +54,20 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
     persistFilters({advertType: value});
   };
 
+  const onCityChange = (value: string) => {
+    let districtSettings: {[key: string]: boolean}|undefined;
+    Object.values(Cities).forEach((city) => {
+      if (city.code === value) {
+        districtSettings = city.districtSettings;
+      }
+    })
+
+    persistFilters({
+      cityCode: value,
+      cityDistrict: districtSettings || null,
+    });
+  };
+
   const onMinPriceChange = (value: number) => {
     setMinPrice(value);
   };
@@ -126,12 +140,22 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
   };
 
   const renderCityDistrictFilter = () => {
-    const { cityDistrict } = filters;
+    const { cityDistrict, cityCode } = filters;
+    let districts: {[key: string]: string}|undefined;
+    Object.values(Cities).forEach((city) => {
+      if (city.code === cityCode) {
+        districts = city.districts;
+      }
+    });
+
+    if (!cityDistrict || !districts) {
+      return;
+    }
 
     return Object.keys(cityDistrict).map((key) => {
       return (
         <View style={styles.cityDistrictSwitchContainer} key={key}>
-          <Text style={styles.textLabel}>{Cities.brno.districts[key]}</Text>
+          <Text style={styles.textLabel}>{districts[key]}</Text>
           <Switch
             value={cityDistrict[key]}
             onValueChange={(value) => {onCityDistrictEnabledChange(key, value)}}
@@ -143,20 +167,42 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
     });
   };
 
+  const renderCityOptions = () => {
+    return Object.keys(Cities).map((city) => {
+      return (
+        <Picker.Item key={city} label={Cities[city].label} value={Cities[city].code} />
+      );
+    });
+  };
+
   return (
     <View>
-      <View style={styles.advertTypePickerContainer}>
+      <View style={styles.pickerContainer}>
         <Text style={styles.textLabel}>
           Filter ad type
         </Text>
-        <Text style={styles.textLabel}></Text>
         <Picker
           selectedValue={filters.advertType}
           onValueChange={onAdvertTypeChange}
-          style={styles.picker}
+          style={styles.advertTypePicker}
+          mode="dropdown"
         >
           <Picker.Item label="Sale" value="sale" />
           <Picker.Item label="Rent" value="rent" />
+        </Picker>
+      </View>
+
+      <View style={styles.pickerContainer}>
+        <Text style={styles.textLabel}>
+          City
+        </Text>
+        <Picker
+          selectedValue={filters.cityCode}
+          onValueChange={onCityChange}
+          style={styles.cityPicker}
+          mode="dropdown"
+        >
+          { renderCityOptions() }
         </Picker>
       </View>
 
@@ -204,7 +250,7 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
         { renderDispositionFilter() }
       </View>
       <View style={styles.cityDistrictContainer}>
-        { renderCityDistrictFilter() }
+        { filters.cityDistrict ? renderCityDistrictFilter() : <></> }
       </View>
 
     </View>
@@ -212,7 +258,7 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
 };
 
 const styles = StyleSheet.create({
-  advertTypePickerContainer: {
+  pickerContainer: {
     flex: 1,
     marginLeft: Layout.sideMargin,
     marginRight: Layout.sideMargin,
@@ -269,9 +315,14 @@ const styles = StyleSheet.create({
   text: {
     color: Colors.text,
   },
-  picker: {
+  advertTypePicker: {
     height: 24,
     width: 100,
+    color: Colors.text
+  },
+  cityPicker: {
+    height: 24,
+    width: 200,
     color: Colors.text
   },
 });

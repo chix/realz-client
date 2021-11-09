@@ -6,25 +6,31 @@ import {
   RefreshControl,
   SafeAreaView,
   StyleSheet,
+  Text,
   ToastAndroid,
   View
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
 import AdListItem from '../components/AdListItem';
 import API from '../constants/Api';
+import Cities from '../constants/Cities';
 import Colors from '../constants/Colors';
 import Layout from '../constants/Layout';
 import { Advert } from '../types';
 
-export default function AdList({ advertType }: { advertType: string }) {
+export default function AdList({ advertType, showFilter }: { advertType: string, showFilter: boolean }) {
   const [isLoading, setIsLoading] = useState(true);
   const [dataSource, setDataSource] = useState([]);
   const [page, setPage] = useState(1);
+  const [city, setCity] = useState(Cities.brno.code);
 
   const fetchData = async () => {
-    setIsLoading(page === 1 ? true : false);
+    setIsLoading(page === 1);
 
-    return fetch(API.host+'/api/adverts?exists[deletedAt]=false&order[id]=desc&type.code=' + advertType + '&page=' + page, {
+    let url = API.host+'/api/adverts?exists[deletedAt]=false&order[id]=desc&type.code=' + advertType + '&page=' + page + '&property.location.city.code=' + city;
+
+    return fetch(url, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -57,6 +63,7 @@ export default function AdList({ advertType }: { advertType: string }) {
     setPage(0);
   }
 
+  // handle page change
   useEffect(() => {
     if (page === 0) {
       setIsLoading(true);
@@ -66,6 +73,10 @@ export default function AdList({ advertType }: { advertType: string }) {
     }
   }, [page]);
 
+  useEffect(() => {
+    setPage(0);
+  }, [city]);
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -73,6 +84,14 @@ export default function AdList({ advertType }: { advertType: string }) {
       </View>
     );
   }
+
+  const renderCityOptions = () => {
+    return Object.keys(Cities).map((city) => {
+      return (
+        <Picker.Item key={city} label={Cities[city].label} value={Cities[city].code} />
+      );
+    });
+  };
 
   return (
     <SafeAreaView style={styles.root}>
@@ -94,6 +113,22 @@ export default function AdList({ advertType }: { advertType: string }) {
         >
         </FlatList>
       </View>
+      {
+        showFilter ?
+          <View style={styles.cityPickerContainer}>
+            <Text style={styles.textLabel}>City:</Text>
+            <Text style={styles.textLabel}></Text>
+            <Picker
+              selectedValue={city}
+              onValueChange={setCity}
+              style={styles.picker}
+              mode="dropdown"
+            >
+              { renderCityOptions() }
+            </Picker>
+          </View>
+        : <></>
+      }
     </SafeAreaView>
   );
 };
@@ -112,5 +147,26 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     backgroundColor: Colors.background,
+  },
+  cityPickerContainer: {
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
+    paddingTop: Layout.sideMargin,
+    borderTopWidth: 1,
+    borderTopColor: Colors.text,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    height: 80,
+  },
+  picker: {
+    height: 24,
+    fontSize: Layout.labelFontSize,
+    width: 200,
+    color: Colors.text,
+  },
+  textLabel: {
+    fontSize: Layout.labelFontSize,
+    fontWeight: 'bold',
+    color: Colors.text,
   },
 });

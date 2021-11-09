@@ -39,6 +39,11 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
   NativeStackScreenProps<RootStackParamList>
 >;
 
+export type SaleStackScreenProps<Screen extends keyof SaleStackParamList> = NativeStackScreenProps<
+  SaleStackParamList,
+  Screen
+>;
+
 type Attribute = {
   id: number
   name: string,
@@ -106,7 +111,7 @@ export type Filters = {
   maxPrice: number,
   disposition: { [key: string]: boolean },
   cityCode: string,
-  cityDistrict: { [key: string]: boolean},
+  cityDistrict: { [key: string]: boolean}|null,
 };
 
 export type FiltersPartial = {
@@ -115,13 +120,13 @@ export type FiltersPartial = {
   maxPrice?: number,
   disposition?: { [key: string]: boolean },
   cityCode?: string,
-  cityDistrict?: { [key: string]: boolean },
+  cityDistrict?: { [key: string]: boolean }|null,
 };
 
 export type FiltersPayload = {
   advertType: string,
   cityCode: string,
-  cityDistrict: string[],
+  cityDistrict?: string[],
   disposition: string[],
   price?: {
     lte?: number,

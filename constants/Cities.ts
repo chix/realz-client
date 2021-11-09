@@ -1,5 +1,6 @@
 export default {
   brno: {
+    label: 'Brno',
     code: '582786',
     districts: {
       '550973': 'Střed',
@@ -65,5 +66,45 @@ export default {
       '551368': false,
       'unassigned': false,
     } as { [key: string]: boolean}
-  }
-};
+  },
+  olomouc: {
+    label: 'Olomouc',
+    code: '500496',
+  },
+  pardubice: {
+    label: 'Pardubice',
+    code: '555134',
+    districts: {
+      '574716': 'Pardubice 1',
+      '555126': 'Pardubice 2',
+      '557064': 'Pardubice 3',
+      '555096': 'Pardubice 4',
+      '557072': 'Pardubice 5',
+      '555100': 'Pardubice 6',
+      '555118': 'Pardubice 7',
+      '575020': 'Pardubice 8',
+    } as { [key: string]: string},
+    districtSettings: {
+      '574716': false,
+      '555126': false,
+      '557064': false,
+      '555096': false,
+      '557072': false,
+      '555100': false,
+      '555118': false,
+      '575020': false,
+    } as { [key: string]: boolean}
+  },
+  hradec_kralove: {
+    label: 'Hradec Králové',
+    code: '569810',
+  },
+  uherske_hradiste: {
+    label: 'Uherské Hradište',
+    code: '592005',
+  },
+  nachod: {
+    label: 'Náchod',
+    code: '573868',
+  },
+} as {[key: string]: any};
