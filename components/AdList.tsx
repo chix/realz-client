@@ -12,14 +12,14 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
-import AdListItem from '../components/AdListItem';
-import API from '../constants/Api';
-import Cities from '../constants/Cities';
-import Colors from '../constants/Colors';
-import Layout from '../constants/Layout';
-import { Advert } from '../types';
+import AdListItem from '@/components/AdListItem';
+import API from '@/constants/Api';
+import Cities from '@/constants/Cities';
+import Colors from '@/constants/Colors';
+import Layout from '@/constants/Layout';
+import { Advert } from '@/types';
 
-export default function AdList({ advertType, showFilter }: { advertType: string, showFilter: boolean }) {
+export default function AdList({ advertType, showFilter }: { advertType: string, showFilter?: boolean }) {
   const [isLoading, setIsLoading] = useState(true);
   const [dataSource, setDataSource] = useState([]);
   const [page, setPage] = useState(1);
@@ -117,7 +117,6 @@ export default function AdList({ advertType, showFilter }: { advertType: string,
         showFilter ?
           <View style={styles.cityPickerContainer}>
             <Text style={styles.textLabel}>City:</Text>
-            <Text style={styles.textLabel}></Text>
             <Picker
               selectedValue={city}
               onValueChange={setCity}
@@ -151,22 +150,20 @@ const styles = StyleSheet.create({
   cityPickerContainer: {
     marginLeft: Layout.sideMargin,
     marginRight: Layout.sideMargin,
-    paddingTop: Layout.sideMargin,
     borderTopWidth: 1,
     borderTopColor: Colors.text,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     height: 80,
   },
   picker: {
-    height: 24,
     fontSize: Layout.labelFontSize,
     width: 200,
     color: Colors.text,
   },
   textLabel: {
     fontSize: Layout.labelFontSize,
-    fontWeight: 'bold',
     color: Colors.text,
   },
 });

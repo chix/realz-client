@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Button,
-  Image,
   ImageBackground,
   Platform,
   SafeAreaView,
@@ -14,14 +13,15 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { Image } from 'expo-image';
 import ImageGallery from 'react-native-image-viewing';
 
-import API from '../constants/Api';
-import Colors from '../constants/Colors';
-import Layout from '../constants/Layout';
-import { Advert, PropertyImage } from '../types';
+import API from '@/constants/Api';
+import Colors from '@/constants/Colors';
+import Layout from '@/constants/Layout';
+import { Advert, PropertyImage } from '@/types';
 
-export default function AdDetail({ id }: { id: number }) {
+export default function AdDetail({ id }: { id: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<Advert>();
   const [galleryVisible, setGalleryVisible] = useState(false);
@@ -41,6 +41,7 @@ export default function AdDetail({ id }: { id: number }) {
             <Image
               source={{uri: image.thumbnail}}
               style={styles.image}
+              contentFit='fill'
             />
           </TouchableOpacity>
         </ImageBackground>      
@@ -72,7 +73,7 @@ export default function AdDetail({ id }: { id: number }) {
     return fetch(href, {
       method: 'GET',
       headers: {
-        Accept: 'application/json',
+        Accept: 'application/ld+json',
         'Content-Type': 'application/json',
       },
     }).then((response) => {
@@ -171,7 +172,6 @@ const styles = StyleSheet.create({
   image: {
     width: Math.round(Layout.width / 2) - Layout.sideMargin - 3,
     height: Math.round((Math.round(Layout.width / 2) - Layout.sideMargin - 3) / 4 * 3),
-    resizeMode: 'stretch',
   },
   placeholder: {
     width: Math.round(Layout.width / 2) - Layout.sideMargin - 3,

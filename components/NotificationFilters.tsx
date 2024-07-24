@@ -8,15 +8,15 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
 
-import Colors from '../constants/Colors';
-import Layout from '../constants/Layout';
-import Cities from '../constants/Cities';
-import { Filters, FiltersPartial } from '../types';
+import Colors from '@/constants/Colors';
+import Layout from '@/constants/Layout';
+import Cities from '@/constants/Cities';
+import { Filters, FiltersPartial } from '@/types';
 
 export default function NotificationFilters({ filtersInput, filtersKey, submitFilters }: {
   filtersInput: Filters,
-  filtersKey: string,
-  submitFilters: (key: string, filters: Filters) => Promise<void>
+  filtersKey: number,
+  submitFilters: (key: number, filters: Filters) => Promise<void>
 }) {
   const [filters, setFilters] = useState(filtersInput ?? {
     advertType: 'sale',
@@ -155,7 +155,7 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
     return Object.keys(cityDistrict).map((key) => {
       return (
         <View style={styles.cityDistrictSwitchContainer} key={key}>
-          <Text style={styles.textLabel}>{districts[key]}</Text>
+          <Text style={styles.textLabel}>{districts?.[key]}</Text>
           <Switch
             value={cityDistrict[key]}
             onValueChange={(value) => {onCityDistrictEnabledChange(key, value)}}

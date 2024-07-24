@@ -1,19 +1,15 @@
 import React from 'react';
-import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image } from 'expo-image';
+import { router } from 'expo-router';
 
-import Colors from '../constants/Colors';
-import Layout from '../constants/Layout';
-import { Advert } from '../types';
+import Colors from '@/constants/Colors';
+import Layout from '@/constants/Layout';
+import { Advert } from '@/types';
 
 export default function AdListItem({ advertType, item }: { advertType: string, item: Advert }) {
-  const navigation = useNavigation();
-
   return (
-    <TouchableOpacity onPress={() => advertType === 'sale'
-      ? navigation.navigate('Root', { screen: 'Sale', params: { screen: 'SaleDetail', params: { id: item.id } } })
-      : navigation.navigate('Root', { screen: 'Rent', params: { screen: 'RentDetail', params: { id: item.id } } })
-    }>
+    <TouchableOpacity onPress={() => router.navigate({ pathname: `/${advertType}/[id]`, params: { id: item.id}})}>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>{(item.title.length > 28) ? item.title.substring(0, 28) + '...' : item.title}</Text>
@@ -39,7 +35,7 @@ export default function AdListItem({ advertType, item }: { advertType: string, i
               <Text style={styles.badge}>{item.property.floor}{item.property.floor === 1 ? 'st' : item.property.floor === 2 ? 'nd' : 'th'} floor</Text>
             }
             {
-              (item.property.construction !== null)
+              (item.property.construction)
               &&
               <Text style={styles.badge}>{item.property.construction.code}</Text>
             }
@@ -51,6 +47,7 @@ export default function AdListItem({ advertType, item }: { advertType: string, i
               <Image
                 source={{uri: item.property.images[0].thumbnail}}
                 style={styles.image}
+                contentFit='fill'
               />
             }
           </ImageBackground>      
@@ -61,6 +58,7 @@ export default function AdListItem({ advertType, item }: { advertType: string, i
               <Image
                 source={{uri: item.property.images[1].thumbnail}}
                 style={styles.image}
+                contentFit='fill'
               />
             }
           </ImageBackground>      
@@ -113,7 +111,6 @@ const styles = StyleSheet.create({
   image: {
     width: Math.round(Layout.width / 2) - Layout.sideMargin - 3,
     height: Math.round((Math.round(Layout.width / 2) - Layout.sideMargin - 3) / 4 * 3),
-    resizeMode: 'stretch',
   },
   placeholder: {
     width: Math.round(Layout.width / 2) - Layout.sideMargin - 3,

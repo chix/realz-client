@@ -19,16 +19,6 @@
       "backgroundColor": "#ffffff"
     },
     "primaryColor":"#ffffff",
-    "notification": {
-      "icon": "./assets/images/icon.png",
-      "androidMode": "default"
-    },
-    "updates": {
-      "fallbackToCacheTimeout": 0
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "cz.martinkuric.realz"
@@ -36,7 +26,6 @@
     "android": {
       "package": "cz.martinkuric.realz",
       "googleServicesFile": "./google-services.json",
-      "useNextNotificationsApi": true,
       "splash": {
         "backgroundColor": "#ffffff"
       }
@@ -45,6 +34,26 @@
       "barStyle": "dark-content",
       "backgroundColor": "#ffffff",
       "translucent": false
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/icon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-asset"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "4fd42320-cf0c-11e8-857b-911781e3251d"
+      }
     }
   }
 }

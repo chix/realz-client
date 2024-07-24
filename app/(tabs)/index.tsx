@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 
-import AdList from '../components/AdList';
-import { SaleStackScreenProps } from '../types';
+import AdList from '@/components/AdList';
+import { useNavigation } from 'expo-router';
 
-export default function SaleScreen({ navigation }: SaleStackScreenProps<'SaleList'>) {
+export default function SaleScreen() {
   const [showFilter, setShowFilter] = useState(false);
+  const navigation = useNavigation();
 
   // toggle filter
   useEffect(() => {
-    const unsubscribe = navigation?.getParent()?.addListener('tabLongPress', () => {
+    const unsubscribe = navigation?.addListener('tabLongPress' as never, () => {
       setShowFilter(showFilter ? false : true);
     });
   

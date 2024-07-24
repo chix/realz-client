@@ -12,18 +12,18 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import API from '../constants/Api';
-import Colors from '../constants/Colors';
-import Layout from '../constants/Layout';
-import ExpoTokenContext from '../contexts/ExpoTokenContext'
-import NotificationFilters from '../components/NotificationFilters';
-import { Filters, FiltersPayload, Settings, SettingsPartial } from '../types';
+import API from '@/constants/Api';
+import Colors from '@/constants/Colors';
+import Layout from '@/constants/Layout';
+import ExpoTokenContext from '@/contexts/ExpoTokenContext'
+import NotificationFilters from '@/components/NotificationFilters';
+import { Filters, FiltersPayload, Settings, SettingsPartial } from '@/types';
 
 export default function NotificationsScreen() {
   const [settingsDisabled, setSettingsDisabled] = useState(true);
   const [settings, setSettings] = useState<Settings>({
     notificationsEnabled: false,
-    filters: {},
+    filters: [],
   });
   const expoToken = useContext(ExpoTokenContext);
   const notificationsEnabled = !settingsDisabled && settings.notificationsEnabled;
@@ -38,13 +38,13 @@ export default function NotificationsScreen() {
     setSettings(mergeSettings(s));
   }
 
-  const removeNotificationFilter = (key: string) => {
+  const removeNotificationFilter = (key: number) => {
     const s = JSON.parse(JSON.stringify(settings));
     s.filters.splice(key, 1);
     persistSettings(s);
   }
 
-  const onFiltersSubmit = async (key: string, filters: Filters) => {
+  const onFiltersSubmit = async (key: number, filters: Filters) => {
     const s = JSON.parse(JSON.stringify(settings));
     s.filters[key] = filters;
     return persistSettings(s);
@@ -69,7 +69,7 @@ export default function NotificationsScreen() {
         cityCode: filters.cityCode,
         cityDistrict: filters.cityDistrict
           ? Object.keys(filters.cityDistrict).filter((key) => {
-            return filters.cityDistrict[key];
+            return filters.cityDistrict?.[key];
           }).map((key) => {
             return key;
           })
@@ -145,14 +145,14 @@ export default function NotificationsScreen() {
   const renderFilters = () => {
     const { filters } = settings;
 
-    return Object.keys(filters).map((key) => {
+    return filters.map((filter, key) => {
       return (
         <View key={key} style={styles.filtersContainer}>
           <NotificationFilters filtersInput={filters[key]} filtersKey={key} submitFilters={onFiltersSubmit} />
           <View style={styles.buttonContainer}>
             <Button
               color={Colors.errorBackground}
-              title={"Remove filter " + (parseInt(key) + 1)} onPress={() => removeNotificationFilter(key)}
+              title={"Remove filter " + (key + 1)} onPress={() => removeNotificationFilter(key)}
             />
           </View>
         </View>
