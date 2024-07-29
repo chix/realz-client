@@ -1,5 +1,6 @@
 export default {
   brno: {
+    type: 'city',
     label: 'Brno',
     code: '582786',
     districts: {
@@ -68,10 +69,12 @@ export default {
     } as { [key: string]: boolean}
   },
   olomouc: {
+    type: 'city',
     label: 'Olomouc',
     code: '500496',
   },
   pardubice: {
+    type: 'city',
     label: 'Pardubice',
     code: '555134',
     districts: {
@@ -96,15 +99,33 @@ export default {
     } as { [key: string]: boolean}
   },
   hradec_kralove: {
+    type: 'city',
     label: 'Hradec Králové',
     code: '569810',
   },
   uherske_hradiste: {
+    type: 'city',
     label: 'Uherské Hradište',
     code: '592005',
   },
   nachod: {
+    type: 'city',
     label: 'Náchod',
     code: '573868',
   },
+  'brno-venkov': {
+    type: 'district',
+    label: 'Brno-venkov',
+    code: 'CZ0643',
+  },
+  blansko: {
+    type: 'district',
+    label: 'Blansko',
+    code: 'CZ0641',
+  },
+  vyskov: {
+    type: 'district',
+    label: 'Vyškov',
+    code: 'CZ0646',
+  }
 } as {[key: string]: any};

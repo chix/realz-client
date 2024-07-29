@@ -10,7 +10,7 @@ import Slider from '@react-native-community/slider';
 
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
-import Cities from '@/constants/Cities';
+import Locations from '@/constants/Locations';
 import { Filters, FiltersPartial } from '@/types';
 
 export default function NotificationFilters({ filtersInput, filtersKey, submitFilters }: {
@@ -20,6 +20,7 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
 }) {
   const [filters, setFilters] = useState(filtersInput ?? {
     advertType: 'sale',
+    propertyType: 'flat',
     minPrice: 0,
     maxPrice: 0,
     disposition: {
@@ -37,8 +38,26 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
       '6+': false,
       'other': false,
     },
-    cityCode: Cities.brno.code,
-    cityDistrict: Cities.brno.districtSettings,
+    cityCode: Locations.brno.code,
+    cityDistrict: Locations.brno.districtSettings,
+    districtCode: undefined,
+    propertySubtype: {
+      'house': {
+        'house': false,
+        'cottage': false,
+        'garrage': false,
+        'farm': false,
+        'other': false,
+      },
+      'land': {
+        'property': false,
+        'field': false,
+        'woods': false,
+        'plantation': false,
+        'garden': false,
+        'other': false,
+      }
+    },
   });
   const [minPrice, setMinPrice] = useState(filtersInput?.minPrice ?? 0);
   const [maxPrice, setMaxPrice] = useState(filtersInput?.maxPrice ?? 0);
@@ -54,17 +73,33 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
     persistFilters({advertType: value});
   };
 
-  const onCityChange = (value: string) => {
-    let districtSettings: {[key: string]: boolean}|undefined;
-    Object.values(Cities).forEach((city) => {
-      if (city.code === value) {
-        districtSettings = city.districtSettings;
-      }
-    })
+  const onPropertyTypeChange = (value: string) => {
+    const f = JSON.parse(JSON.stringify(filters));
+
+    if (value === 'land') {
+      Object.keys(f.disposition).forEach(key => f.disposition[key] = false);
+      Object.keys(f.propertySubtype['house']).forEach(key => f.propertySubtype['house'][key] = false);
+    } else if (value === 'house') {
+      Object.keys(f.propertySubtype['land']).forEach(key => f.propertySubtype['land'][key] = false);
+    } else {
+      Object.keys(f.propertySubtype['house']).forEach(key => f.propertySubtype['house'][key] = false);
+      Object.keys(f.propertySubtype['land']).forEach(key => f.propertySubtype['land'][key] = false);
+    }
+
+    persistFilters({propertyType: value, disposition: f.disposition, propertySubtype: f.propertySubtype});
+  };
+
+  const onLocationChange = (value: string) => {
+    const location = Object.values(Locations).find(l => l.code === value);
+    if (!location) {
+      return;
+    }
+    const districtSettings = location.districtSettings;
 
     persistFilters({
-      cityCode: value,
-      cityDistrict: districtSettings || null,
+      cityCode: location.type === 'city' ? value : undefined,
+      districtCode: location.type === 'district' ? value : undefined,
+      cityDistrict: districtSettings,
     });
   };
 
@@ -97,6 +132,12 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
   const onDispositionEnabledChange = (disposition: string, value: boolean) => {
     const f = JSON.parse(JSON.stringify(filters));
     f.disposition[disposition] = value;
+    persistFilters(f);
+  };
+
+  const onSubtypeEnabledChange = (propertyType: string, propertySubtype: string, value: boolean) => {
+    const f = JSON.parse(JSON.stringify(filters));
+    f.propertySubtype[propertyType][propertySubtype] = value;
     persistFilters(f);
   };
 
@@ -139,12 +180,34 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
     });
   };
 
+  const renderSubtypeFilter = () => {
+    const { propertySubtype, propertyType } = filters;
+
+    if (!propertySubtype[propertyType]) {
+      return <></>;
+    }
+
+    return Object.keys(propertySubtype[propertyType]).map((key) => {
+      return (
+        <View style={styles.subtypeSwitchContainer} key={key}>
+          <Text style={styles.textLabel}>{key}</Text>
+          <Switch
+            value={propertySubtype[propertyType][key]}
+            onValueChange={(value) => {onSubtypeEnabledChange(propertyType, key, value)}}
+            trackColor={{false: Colors.buttonOff, true: Colors.buttonLight}}
+            thumbColor={propertySubtype[propertyType][key] ? Colors.button : Colors.buttonOffLight}
+          />
+        </View>
+      );
+    });
+  };
+
   const renderCityDistrictFilter = () => {
     const { cityDistrict, cityCode } = filters;
     let districts: {[key: string]: string}|undefined;
-    Object.values(Cities).forEach((city) => {
-      if (city.code === cityCode) {
-        districts = city.districts;
+    Object.values(Locations).forEach((location) => {
+      if (location.type === 'city' && location.code === cityCode) {
+        districts = location.districts;
       }
     });
 
@@ -167,10 +230,10 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
     });
   };
 
-  const renderCityOptions = () => {
-    return Object.keys(Cities).map((city) => {
+  const renderLocationOptions = () => {
+    return Object.keys(Locations).map((location) => {
       return (
-        <Picker.Item key={city} label={Cities[city].label} value={Cities[city].code} />
+        <Picker.Item key={location} label={Locations[location].label} value={Locations[location].code} />
       );
     });
   };
@@ -179,7 +242,7 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
     <View>
       <View style={styles.pickerContainer}>
         <Text style={styles.textLabel}>
-          Filter ad type
+          Ad type
         </Text>
         <Picker
           selectedValue={filters.advertType}
@@ -194,15 +257,31 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
 
       <View style={styles.pickerContainer}>
         <Text style={styles.textLabel}>
-          City
+          Property type
         </Text>
         <Picker
-          selectedValue={filters.cityCode}
-          onValueChange={onCityChange}
+          selectedValue={filters.propertyType}
+          onValueChange={onPropertyTypeChange}
+          style={styles.propertyTypePicker}
+          mode="dropdown"
+        >
+          <Picker.Item label="Flat" value="flat" />
+          <Picker.Item label="House" value="house" />
+          <Picker.Item label="Land" value="land" />
+        </Picker>
+      </View>
+
+      <View style={styles.pickerContainer}>
+        <Text style={styles.textLabel}>
+          Location
+        </Text>
+        <Picker
+          selectedValue={filters.cityCode ?? filters.districtCode}
+          onValueChange={onLocationChange}
           style={styles.cityPicker}
           mode="dropdown"
         >
-          { renderCityOptions() }
+          { renderLocationOptions() }
         </Picker>
       </View>
 
@@ -246,8 +325,11 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
         minimumTrackTintColor={Colors.buttonLight}
         maximumTrackTintColor={Colors.buttonOff}
       />
+      <View style={styles.subtypeContainer}>
+        { (filters.propertyType === 'house' || filters.propertyType === 'land') ? renderSubtypeFilter() : <></> }
+      </View>
       <View style={styles.dispositionContainer}>
-        { renderDispositionFilter() }
+        { filters.propertyType !== 'land' ? renderDispositionFilter() : <></> }
       </View>
       <View style={styles.cityDistrictContainer}>
         { filters.cityDistrict ? renderCityDistrictFilter() : <></> }
@@ -262,9 +344,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: Layout.sideMargin,
     marginRight: Layout.sideMargin,
-    marginTop: Layout.sideMargin,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   sliderLabelContainer: {
     flex: 1,
@@ -288,6 +370,21 @@ const styles = StyleSheet.create({
   },
   dispositionSwitchContainer: {
     width: Math.round((Layout.width - (2 * Layout.sideMargin)) / 3) - Layout.sideMargin,
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  subtypeContainer: {
+    flex: 1,
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
+    marginTop: Layout.sideMargin,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+  },
+  subtypeSwitchContainer: {
+    width: Math.round((Layout.width - (2 * Layout.sideMargin)) / 2) - 2 * Layout.sideMargin,
     marginTop: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -316,13 +413,15 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
   advertTypePicker: {
-    height: 24,
-    width: 100,
+    width: 150,
+    color: Colors.text
+  },
+  propertyTypePicker: {
+    width: 150,
     color: Colors.text
   },
   cityPicker: {
-    height: 24,
-    width: 200,
+    width: 150,
     color: Colors.text
   },
 });

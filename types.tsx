@@ -61,25 +61,34 @@ export type Source = Attribute;
 
 export type Filters = {
   advertType: string,
+  propertyType: string,
+  propertySubtype: { [key: string]: { [key: string]: boolean } },
   minPrice: number,
   maxPrice: number,
   disposition: { [key: string]: boolean },
-  cityCode: string,
-  cityDistrict: { [key: string]: boolean}|null,
+  cityCode?: string,
+  cityDistrict?: { [key: string]: boolean},
+  districtCode?: string,
 };
 
 export type FiltersPartial = {
   advertType?: string,
+  propertyType?: string,
+  propertySubtype?: { [key: string]: { [key: string]: boolean } },
   minPrice?: number,
   maxPrice?: number,
   disposition?: { [key: string]: boolean },
   cityCode?: string,
-  cityDistrict?: { [key: string]: boolean }|null,
+  cityDistrict?: { [key: string]: boolean },
+  districtCode?: string,
 };
 
 export type FiltersPayload = {
   advertType: string,
-  cityCode: string,
+  propertyType: string,
+  propertySubtype?: string[],
+  cityCode?: string,
+  districtCode?: string,
   cityDistrict?: string[],
   disposition: string[],
   price?: {

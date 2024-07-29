@@ -66,7 +66,15 @@ export default function NotificationsScreen() {
 
       let payload: FiltersPayload = {
         advertType: filters.advertType,
-        cityCode: filters.cityCode,
+        propertyType: filters.propertyType,
+        propertySubtype: filters.propertySubtype[filters.propertyType]
+          ? Object.keys(filters.propertySubtype[filters.propertyType]).filter((key) => {
+            return filters.propertySubtype[filters.propertyType][key];
+          }).map((key) => {
+            return key;
+          })
+          : undefined,
+        cityCode: filters.cityCode ?? undefined,
         cityDistrict: filters.cityDistrict
           ? Object.keys(filters.cityDistrict).filter((key) => {
             return filters.cityDistrict?.[key];
@@ -74,6 +82,7 @@ export default function NotificationsScreen() {
             return key;
           })
           : undefined,
+        districtCode: filters.districtCode ?? undefined,
         disposition: Object.keys(filters.disposition).filter((key) => {
           return filters.disposition[key];
         }).map((key) => {

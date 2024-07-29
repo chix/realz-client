@@ -14,7 +14,7 @@ import { Picker } from '@react-native-picker/picker';
 
 import AdListItem from '@/components/AdListItem';
 import API from '@/constants/Api';
-import Cities from '@/constants/Cities';
+import Locations from '@/constants/Locations';
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import { Advert } from '@/types';
@@ -23,12 +23,16 @@ export default function AdList({ advertType, showFilter }: { advertType: string,
   const [isLoading, setIsLoading] = useState(true);
   const [dataSource, setDataSource] = useState([]);
   const [page, setPage] = useState(1);
-  const [city, setCity] = useState(Cities.brno.code);
+  const [location, setLocation] = useState(Locations.brno);
+  const [type, setType] = useState('');
+  const [subtype, setSubtype] = useState('');
 
   const fetchData = async () => {
     setIsLoading(page === 1);
 
-    let url = API.host+'/api/adverts?exists[deletedAt]=false&order[id]=desc&type.code=' + advertType + '&page=' + page + '&property.location.city.code=' + city;
+    let url = `${API.host}/api/adverts?exists[deletedAt]=false&order[id]=desc&type.code=${advertType}&page=${page}&property.location.${location.type}.code=${location.code}`
+      + (type ? `&property.type.code=${type}` : '')
+      + (subtype ? `&property.subtype.code=${subtype}` : '');
 
     return fetch(url, {
       method: 'GET',
@@ -75,7 +79,7 @@ export default function AdList({ advertType, showFilter }: { advertType: string,
 
   useEffect(() => {
     setPage(0);
-  }, [city]);
+  }, [location]);
 
   if (isLoading) {
     return (
@@ -85,10 +89,10 @@ export default function AdList({ advertType, showFilter }: { advertType: string,
     );
   }
 
-  const renderCityOptions = () => {
-    return Object.keys(Cities).map((city) => {
+  const renderLocationOptions = () => {
+    return Object.keys(Locations).map((key) => {
       return (
-        <Picker.Item key={city} label={Cities[city].label} value={Cities[city].code} />
+        <Picker.Item key={key} label={Locations[key].label} value={Locations[key]} />
       );
     });
   };
@@ -115,16 +119,53 @@ export default function AdList({ advertType, showFilter }: { advertType: string,
       </View>
       {
         showFilter ?
-          <View style={styles.cityPickerContainer}>
-            <Text style={styles.textLabel}>City:</Text>
-            <Picker
-              selectedValue={city}
-              onValueChange={setCity}
-              style={styles.picker}
-              mode="dropdown"
-            >
-              { renderCityOptions() }
-            </Picker>
+          <View>
+            <View style={styles.locationPickerContainer}>
+              <Text style={styles.textLabel}>Location:</Text>
+              <Picker
+                selectedValue={location}
+                onValueChange={setLocation}
+                style={styles.picker}
+                mode="dropdown"
+              >
+                { renderLocationOptions() }
+              </Picker>
+            </View>
+            <View style={styles.typePickerContainer}>
+              <Text style={styles.textLabel}>Type:</Text>
+              <Picker
+                selectedValue={type}
+                onValueChange={setType}
+                style={styles.picker}
+                mode="dropdown"
+              >
+                <Picker.Item label="All" value="" />
+                <Picker.Item label="Flat" value="flat" />
+                <Picker.Item label="House" value="house" />
+                <Picker.Item label="Land" value="land" />
+              </Picker>
+            </View>
+            <View style={styles.typePickerContainer}>
+              <Text style={styles.textLabel}>Subtype:</Text>
+              <Picker
+                selectedValue={subtype}
+                onValueChange={setSubtype}
+                style={styles.picker}
+                mode="dropdown"
+              >
+                <Picker.Item label="All" value="" />
+                <Picker.Item label="House" value="house" />
+                <Picker.Item label="Cottage" value="cottage" />
+                <Picker.Item label="Garrage" value="garrage" />
+                <Picker.Item label="Farm" value="farm" />
+                <Picker.Item label="Property" value="property" />
+                <Picker.Item label="Field" value="field" />
+                <Picker.Item label="Woods" value="woods" />
+                <Picker.Item label="Plantation" value="plantation" />
+                <Picker.Item label="Garden" value="garden" />
+                <Picker.Item label="Other" value="other" />
+              </Picker>
+            </View>
           </View>
         : <></>
       }
@@ -147,7 +188,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: Colors.background,
   },
-  cityPickerContainer: {
+  locationPickerContainer: {
     marginLeft: Layout.sideMargin,
     marginRight: Layout.sideMargin,
     borderTopWidth: 1,
@@ -155,7 +196,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    height: 80,
+    height: 40,
+  },
+  typePickerContainer: {
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    height: 40,
   },
   picker: {
     fontSize: Layout.labelFontSize,
