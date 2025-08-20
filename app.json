@@ -3,7 +3,6 @@
     "name": "realz",
     "description": "Realz client app.",
     "slug": "realz-client",
-    "privacy": "unlisted",
     "platforms": [
       "android"
     ],
@@ -13,22 +12,14 @@
     "icon": "./assets/images/icon.png",
     "scheme": "realz",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "primaryColor":"#ffffff",
+    "primaryColor": "#ffffff",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "cz.martinkuric.realz"
     },
     "android": {
       "package": "cz.martinkuric.realz",
-      "googleServicesFile": "./google-services.json",
-      "splash": {
-        "backgroundColor": "#ffffff"
-      }
+      "googleServicesFile": "./google-services.json"
     },
     "androidStatusBar": {
       "barStyle": "dark-content",
@@ -42,7 +33,20 @@
     },
     "plugins": [
       "expo-router",
-      "expo-asset"
+      "expo-asset",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ffffff",
+          "image": "./assets/images/icon.png",
+          "resizeMode": "contain",
+          "dark": {
+            "backgroundColor": "#000000"
+          },
+          "imageWidth": 200
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -54,6 +58,7 @@
       "eas": {
         "projectId": "4fd42320-cf0c-11e8-857b-911781e3251d"
       }
-    }
+    },
+    "newArchEnabled": true
   }
 }
