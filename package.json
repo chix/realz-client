@@ -3,12 +3,12 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
+    "start": "APP_VARIANT=development npx expo start",
+    "android": "APP_VARIANT=development npx expo start --android",
+    "ios": "APP_VARIANT=development npx expo start --ios",
+    "web": "APP_VARIANT=development npx expo start --web",
     "test": "jest --watchAll",
-    "lint": "expo lint"
+    "lint": "npx expo lint"
   },
   "jest": {
     "preset": "jest-expo"
