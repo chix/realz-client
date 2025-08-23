@@ -44,6 +44,12 @@ export default function NotificationsScreen() {
     persistSettings(s);
   }
 
+  const toggleCompactView = (key: number) => {
+    const s = JSON.parse(JSON.stringify(settings));
+    s.filters[key].compactView = !s.filters[key].compactView;
+    persistSettings(s);
+  }
+
   const onFiltersSubmit = async (key: number, filters: Filters) => {
     const s = JSON.parse(JSON.stringify(settings));
     s.filters[key] = filters;
@@ -159,10 +165,23 @@ export default function NotificationsScreen() {
         <View key={key} style={styles.filtersContainer}>
           <NotificationFilters filtersInput={filters[key]} filtersKey={key} submitFilters={onFiltersSubmit} />
           <View style={styles.buttonContainer}>
-            <Button
-              color={Colors.errorBackground}
-              title={"Remove filter " + (key + 1)} onPress={() => removeNotificationFilter(key)}
-            />
+            {
+              filter?.compactView ? <></> :
+                <View style={{width: filter === undefined ? '100%' : '48%'}}>
+                  <Button
+                    color={Colors.errorBackground}
+                    title={"Remove"} onPress={() => removeNotificationFilter(key)}
+                  />
+                </View>
+            }
+            { filter === undefined ? <></> :
+                <View style={{width: filter.compactView ? '100%' : '48%'}}>
+                  <Button
+                    color={Colors.button}
+                    title={filter.compactView ? "Edit" : "Save"} onPress={() => toggleCompactView(key)}
+                  />
+                </View>
+            }
           </View>
         </View>
       );
@@ -191,10 +210,12 @@ export default function NotificationsScreen() {
         {
           notificationsEnabled ?
             <View style={styles.buttonContainer}>
-              <Button
-                color={Colors.button}
-                title="Add filter" onPress={() => addNotificationFilter()}
-              />
+              <View style={{width:'100%'}}>
+                <Button
+                  color={Colors.button}
+                  title="Add filter" onPress={() => addNotificationFilter()}
+                />
+              </View>
             </View>
             : <></>
         }
@@ -246,6 +267,9 @@ const styles = StyleSheet.create({
     marginBottom: Math.round(Layout.sideMargin),
   },
   buttonContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     marginLeft: Layout.sideMargin,
     marginRight: Layout.sideMargin,
     marginTop: Layout.sideMargin,

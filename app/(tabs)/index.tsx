@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import AdList from '@/components/AdList';
 import { useNavigation } from 'expo-router';
+import { AdvertTypeEnum } from '@/types';
 
 export default function SaleScreen() {
   const [showFilter, setShowFilter] = useState(false);
@@ -17,6 +18,6 @@ export default function SaleScreen() {
   }, [navigation, showFilter]);
 
   return (
-    <AdList advertType="sale" showFilter={showFilter}/>
+    <AdList advertType={AdvertTypeEnum.sale} showFilter={showFilter}/>
   );
 };

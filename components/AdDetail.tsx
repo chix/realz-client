@@ -20,6 +20,7 @@ import API from '@/constants/Api';
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import { Advert, PropertyImage } from '@/types';
+import { currencyFormatter } from '@/services/utils';
 
 export default function AdDetail({ id }: { id: string }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -119,9 +120,9 @@ export default function AdDetail({ id }: { id: string }) {
         <Text style={styles.headerText}>{data?.title}</Text>
         <Text style={styles.subheaderText}>{data?.property.location.street}</Text>
         <Text style={styles.subheaderText}>
-          {(data?.price !== undefined && data.price !== null) ? data.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč ' : ' '}
+          {(data?.price !== undefined && data.price !== null) ? currencyFormatter.format(data.price) : ' '}
           {(data?.previousPrice !== undefined && data.previousPrice !== null && data.previousPrice !== data.price) &&
-            <Text style={styles.previousPriceText}>{data.previousPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč'}</Text>
+            <Text style={styles.previousPriceText}>{currencyFormatter.format(data.previousPrice)}</Text>
           }
         </Text>
         <View style={styles.imageContainer}>

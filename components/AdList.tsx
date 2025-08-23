@@ -17,9 +17,9 @@ import API from '@/constants/Api';
 import Locations from '@/constants/Locations';
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
-import { Advert } from '@/types';
+import { Advert, AdvertTypeEnum } from '@/types';
 
-export default function AdList({ advertType, showFilter }: { advertType: string, showFilter?: boolean }) {
+export default function AdList({ advertType, showFilter }: { advertType: AdvertTypeEnum, showFilter?: boolean }) {
   const [isLoading, setIsLoading] = useState(true);
   const [dataSource, setDataSource] = useState([]);
   const [page, setPage] = useState(1);

@@ -69,6 +69,7 @@ export type Filters = {
   cityCode?: string,
   cityDistrict?: { [key: string]: boolean},
   districtCode?: string,
+  compactView?: boolean,
 };
 
 export type FiltersPartial = {
@@ -106,3 +107,8 @@ export type SettingsPartial = {
   notificationsEnabled?: boolean,
   filters?: Filters[],
 };
+
+export enum AdvertTypeEnum {
+  sale = 'sale',
+  rent = 'rent'
+}

@@ -5,16 +5,17 @@ import { router } from 'expo-router';
 
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
-import { Advert } from '@/types';
+import { Advert, AdvertTypeEnum } from '@/types';
+import { currencyFormatter } from '@/services/utils';
 
-export default function AdListItem({ advertType, item }: { advertType: string, item: Advert }) {
+export default function AdListItem({ advertType, item }: { advertType: AdvertTypeEnum, item: Advert }) {
   return (
     <TouchableOpacity onPress={() => router.navigate({ pathname: `/${advertType}/[id]`, params: { id: item.id}})}>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>{(item.title.length > 28) ? item.title.substring(0, 28) + '...' : item.title}</Text>
           <Text style={styles.headerText}>
-            {(item.price !== undefined && item.price !== null) ? item.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč' : ''}
+            {(item.price !== undefined && item.price !== null) ? currencyFormatter.format(item.price) : ''}
           </Text>
         </View>
         <View style={styles.imageContainer}>
@@ -27,7 +28,7 @@ export default function AdListItem({ advertType, item }: { advertType: string, i
             {
               (item.previousPrice !== undefined && item.previousPrice !== null && item.previousPrice !== item.price)
               &&
-              <Text style={[styles.badge, styles.badgePreviousPrice]}>{item.previousPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč'}</Text>
+              <Text style={[styles.badge, styles.badgePreviousPrice]}>{currencyFormatter.format(item.previousPrice)}</Text>
             }
             {
               (item.property.floor !== undefined && item.property.floor !== null)

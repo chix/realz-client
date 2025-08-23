@@ -11,7 +11,8 @@ import Slider from '@react-native-community/slider';
 import Colors from '@/constants/Colors';
 import Layout from '@/constants/Layout';
 import Locations from '@/constants/Locations';
-import { Filters, FiltersPartial } from '@/types';
+import { AdvertTypeEnum, Filters, FiltersPartial } from '@/types';
+import { capitalize, currencyFormatter, locationsCodeMap } from '@/services/utils';
 
 export default function NotificationFilters({ filtersInput, filtersKey, submitFilters }: {
   filtersInput: Filters,
@@ -19,6 +20,7 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
   submitFilters: (key: number, filters: Filters) => Promise<void>
 }) {
   const [filters, setFilters] = useState(filtersInput ?? {
+    editmode: true,
     advertType: 'sale',
     propertyType: 'flat',
     minPrice: 0,
@@ -90,15 +92,16 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
   };
 
   const onLocationChange = (value: string) => {
-    const location = Object.values(Locations).find(l => l.code === value);
-    if (!location) {
+    const key = locationsCodeMap[value];
+
+    if (!key) {
       return;
     }
-    const districtSettings = location.districtSettings;
+    const districtSettings = Locations[key].districtSettings;
 
     persistFilters({
-      cityCode: location.type === 'city' ? value : undefined,
-      districtCode: location.type === 'district' ? value : undefined,
+      cityCode: Locations[key].type === 'city' ? value : undefined,
+      districtCode: Locations[key].type === 'district' ? value : undefined,
       cityDistrict: districtSettings,
     });
   };
@@ -204,12 +207,9 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
 
   const renderCityDistrictFilter = () => {
     const { cityDistrict, cityCode } = filters;
-    let districts: {[key: string]: string}|undefined;
-    Object.values(Locations).forEach((location) => {
-      if (location.type === 'city' && location.code === cityCode) {
-        districts = location.districts;
-      }
-    });
+
+    const key = locationsCodeMap[cityCode ?? ''];
+    const districts = Locations[key]?.districts;
 
     if (!cityDistrict || !districts) {
       return;
@@ -240,106 +240,144 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
 
   return (
     <View>
-      <View style={styles.pickerContainer}>
-        <Text style={styles.textLabel}>
-          Ad type
-        </Text>
-        <Picker
-          selectedValue={filters.advertType}
-          onValueChange={onAdvertTypeChange}
-          style={styles.advertTypePicker}
-          mode="dropdown"
-        >
-          <Picker.Item label="Sale" value="sale" />
-          <Picker.Item label="Rent" value="rent" />
-        </Picker>
-      </View>
+      {
+        filtersInput?.compactView ?
+          <View style={styles.compactViewContainer}>
+            <View style={styles.compactViewContainerItem}>
+              <Text style={styles.textLabel}>
+                {Locations[locationsCodeMap[filters.cityCode ?? '']]?.label}
+              </Text>
+              { !filters.minPrice ? <></> :
+                <Text style={styles.textLabelSmall}>
+                  min: {currencyFormatter.format((filters.minPrice))}
+                </Text>
+              }
+            </View>
+            <View style={styles.compactViewContainerItem}>
+              <Text style={styles.textLabel}>
+                {capitalize(filters.propertyType)} - {capitalize(filters.advertType)}
+              </Text>
+              { !filters.maxPrice ? <></> :
+                <Text style={styles.textLabelSmall}>
+                  max: {currencyFormatter.format((filters.maxPrice))}
+                </Text>
+              }
+            </View>
+          </View>
+          :
+          <View>
+            <View style={styles.pickerContainer}>
+              <Text style={styles.textLabel}>
+                Ad type
+              </Text>
+              <Picker
+                selectedValue={filters.advertType}
+                onValueChange={onAdvertTypeChange}
+                style={styles.advertTypePicker}
+                mode="dropdown"
+              >
+                <Picker.Item label="Sale" value={AdvertTypeEnum.sale} />
+                <Picker.Item label="Rent" value={AdvertTypeEnum.rent} />
+              </Picker>
+            </View>
 
-      <View style={styles.pickerContainer}>
-        <Text style={styles.textLabel}>
-          Property type
-        </Text>
-        <Picker
-          selectedValue={filters.propertyType}
-          onValueChange={onPropertyTypeChange}
-          style={styles.propertyTypePicker}
-          mode="dropdown"
-        >
-          <Picker.Item label="Flat" value="flat" />
-          <Picker.Item label="House" value="house" />
-          <Picker.Item label="Land" value="land" />
-        </Picker>
-      </View>
+            <View style={styles.pickerContainer}>
+              <Text style={styles.textLabel}>
+                Property type
+              </Text>
+              <Picker
+                selectedValue={filters.propertyType}
+                onValueChange={onPropertyTypeChange}
+                style={styles.propertyTypePicker}
+                mode="dropdown"
+              >
+                <Picker.Item label="Flat" value="flat" />
+                <Picker.Item label="House" value="house" />
+                <Picker.Item label="Land" value="land" />
+              </Picker>
+            </View>
 
-      <View style={styles.pickerContainer}>
-        <Text style={styles.textLabel}>
-          Location
-        </Text>
-        <Picker
-          selectedValue={filters.cityCode ?? filters.districtCode}
-          onValueChange={onLocationChange}
-          style={styles.cityPicker}
-          mode="dropdown"
-        >
-          { renderLocationOptions() }
-        </Picker>
-      </View>
+            <View style={styles.pickerContainer}>
+              <Text style={styles.textLabel}>
+                Location
+              </Text>
+              <Picker
+                selectedValue={filters.cityCode ?? filters.districtCode}
+                onValueChange={onLocationChange}
+                style={styles.cityPicker}
+                mode="dropdown"
+              >
+                { renderLocationOptions() }
+              </Picker>
+            </View>
 
-      <View style={styles.sliderLabelContainer}>
-        <Text style={styles.textLabel}>
-          Minimum price
-        </Text>
-        <Text style={styles.textLabel}>
-          {minPrice !== 0 ? minPrice.toString() + ' Kč' : ''}
-        </Text>
-      </View>
-      <Slider
-        style={styles.slider}
-        minimumValue={0}
-        maximumValue={filters.advertType === 'sale' ? salePriceLimit : rentPriceLimit}
-        step={filters.advertType === 'sale' ? salePriceStep : rentPriceStep}
-        value={minPrice}
-        onValueChange={(value) => onMinPriceChange(value)}
-        onSlidingComplete={(value) => onMinPriceChangeComplete(value)}
-        thumbTintColor={Colors.button}
-        minimumTrackTintColor={Colors.buttonLight}
-        maximumTrackTintColor={Colors.buttonOff}
-      />
-      <View style={styles.sliderLabelContainer}>
-        <Text style={styles.textLabel}>
-          Maximum price
-        </Text>
-        <Text style={styles.textLabel}>
-          {maxPrice !== 0 ? maxPrice.toString() + ' Kč' : ''}
-        </Text>
-      </View>
-      <Slider
-        style={styles.slider}
-        minimumValue={0}
-        maximumValue={filters.advertType === 'sale' ? salePriceLimit : rentPriceLimit}
-        step={filters.advertType === 'sale' ? salePriceStep : rentPriceStep}
-        value={maxPrice}
-        onValueChange={(value) => onMaxPriceChange(value)}
-        onSlidingComplete={(value) => onMaxPriceChangeComplete(value)}
-        thumbTintColor={Colors.button}
-        minimumTrackTintColor={Colors.buttonLight}
-        maximumTrackTintColor={Colors.buttonOff}
-      />
-      <View style={styles.subtypeContainer}>
-        { (filters.propertyType === 'house' || filters.propertyType === 'land') ? renderSubtypeFilter() : <></> }
-      </View>
-      <View style={styles.dispositionContainer}>
-        { filters.propertyType !== 'land' ? renderDispositionFilter() : <></> }
-      </View>
-      <View style={styles.cityDistrictContainer}>
-        { filters.cityDistrict ? renderCityDistrictFilter() : <></> }
-      </View>
-
+            <View style={styles.sliderLabelContainer}>
+              <Text style={styles.textLabel}>
+                Minimum price
+              </Text>
+              <Text style={styles.textLabel}>
+                {minPrice !== 0 ? currencyFormatter.format(filters.minPrice) : ''}
+              </Text>
+            </View>
+            <Slider
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={filters.advertType === 'sale' ? salePriceLimit : rentPriceLimit}
+              step={filters.advertType === 'sale' ? salePriceStep : rentPriceStep}
+              value={minPrice}
+              onValueChange={(value) => onMinPriceChange(value)}
+              onSlidingComplete={(value) => onMinPriceChangeComplete(value)}
+              thumbTintColor={Colors.button}
+              minimumTrackTintColor={Colors.buttonLight}
+              maximumTrackTintColor={Colors.buttonOff}
+            />
+            <View style={styles.sliderLabelContainer}>
+              <Text style={styles.textLabel}>
+                Maximum price
+              </Text>
+              <Text style={styles.textLabel}>
+                {maxPrice !== 0 ? currencyFormatter.format(filters.maxPrice) : ''}
+              </Text>
+            </View>
+            <Slider
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={filters.advertType === 'sale' ? salePriceLimit : rentPriceLimit}
+              step={filters.advertType === 'sale' ? salePriceStep : rentPriceStep}
+              value={maxPrice}
+              onValueChange={(value) => onMaxPriceChange(value)}
+              onSlidingComplete={(value) => onMaxPriceChangeComplete(value)}
+              thumbTintColor={Colors.button}
+              minimumTrackTintColor={Colors.buttonLight}
+              maximumTrackTintColor={Colors.buttonOff}
+            />
+            <View style={styles.subtypeContainer}>
+              { (filters.propertyType === 'house' || filters.propertyType === 'land') ? renderSubtypeFilter() : <></> }
+            </View>
+            <View style={styles.dispositionContainer}>
+              { filters.propertyType !== 'land' ? renderDispositionFilter() : <></> }
+            </View>
+            <View style={styles.cityDistrictContainer}>
+              { filters.cityDistrict ? renderCityDistrictFilter() : <></> }
+            </View>
+          </View>
+      }
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  compactViewContainer: {
+    marginTop: Layout.sideMargin / 2,
+  },
+  compactViewContainerItem: {
+    flex: 1,
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   pickerContainer: {
     flex: 1,
     marginLeft: Layout.sideMargin,
@@ -408,6 +446,10 @@ const styles = StyleSheet.create({
   textLabel: {
     fontSize: Layout.labelFontSize,
     color: Colors.text,
+  },
+  textLabelSmall: {
+    fontSize: Layout.labelFontSize - 4,
+    color: Colors.disabledText,
   },
   text: {
     color: Colors.text,

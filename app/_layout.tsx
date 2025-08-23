@@ -12,6 +12,7 @@ import useCachedResources from '@/hooks/useCachedResources';
 import Colors from '@/constants/Colors';
 import { ExpoTokenProvider } from '@/contexts/ExpoTokenContext'
 import { useEffect, useState } from "react";
+import { AdvertTypeEnum } from "@/types";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -49,7 +50,7 @@ export default function RootLayout() {
     ) {
       const data = lastNotificationResponse.notification.request.content.data ?? JSON.parse(lastNotificationResponse.notification.request.content.dataString ?? '{}');
       const id = data?.id;
-      const type = data?.type;
+      const type = data?.type as AdvertTypeEnum;
       if (id && type) {
         router.navigate({ pathname: `/${type}/[id]`, params: { id }})
       }
