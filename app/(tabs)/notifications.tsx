@@ -80,6 +80,9 @@ export default function NotificationsScreen() {
             return key;
           })
           : undefined,
+        price: {
+          includeNoPrice: !!filters.includeNoPrice,
+        },
         cityCode: filters.cityCode ?? undefined,
         cityDistrict: filters.cityDistrict
           ? Object.keys(filters.cityDistrict).filter((key) => {
@@ -93,20 +96,14 @@ export default function NotificationsScreen() {
           return filters.disposition[key];
         }).map((key) => {
           return key;
-        })
-      };
+        }),
+      }
 
       if (filters.minPrice !== 0) {
-        if (payload.price === undefined) {
-          payload.price = {};
-        }
         payload.price.gte = filters.minPrice;
       }
 
       if (filters.maxPrice !== 0) {
-        if (payload.price === undefined) {
-          payload.price = {};
-        }
         payload.price.lte = filters.maxPrice;
       }
 

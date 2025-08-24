@@ -65,6 +65,7 @@ export type Filters = {
   propertySubtype: { [key: string]: { [key: string]: boolean } },
   minPrice: number,
   maxPrice: number,
+  includeNoPrice: boolean,
   disposition: { [key: string]: boolean },
   cityCode?: string,
   cityDistrict?: { [key: string]: boolean},
@@ -78,6 +79,7 @@ export type FiltersPartial = {
   propertySubtype?: { [key: string]: { [key: string]: boolean } },
   minPrice?: number,
   maxPrice?: number,
+  includeNoPrice?: boolean,
   disposition?: { [key: string]: boolean },
   cityCode?: string,
   cityDistrict?: { [key: string]: boolean },
@@ -92,7 +94,8 @@ export type FiltersPayload = {
   districtCode?: string,
   cityDistrict?: string[],
   disposition: string[],
-  price?: {
+  price: {
+    includeNoPrice: boolean,
     lte?: number,
     gte?: number
   },

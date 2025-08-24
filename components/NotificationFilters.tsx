@@ -25,6 +25,7 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
     propertyType: 'flat',
     minPrice: 0,
     maxPrice: 0,
+    includeNoPrice: false,
     disposition: {
       '1': false,
       '1+kk': false,
@@ -131,6 +132,10 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
       persistFilters(f);
     }, 50)
   }
+
+  const onIncludeNoPriceChange = (value: boolean) => {
+    persistFilters({includeNoPrice: value});
+  };
 
   const onDispositionEnabledChange = (disposition: string, value: boolean) => {
     const f = JSON.parse(JSON.stringify(filters));
@@ -351,6 +356,17 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
               minimumTrackTintColor={Colors.buttonLight}
               maximumTrackTintColor={Colors.buttonOff}
             />
+            <View style={styles.includeNoPriceSwitchContainer}>
+              <Text style={styles.textLabel}>
+                Include ads without price
+              </Text>
+              <Switch
+                value={filters.includeNoPrice}
+                onValueChange={onIncludeNoPriceChange}
+                trackColor={{false: Colors.buttonOff, true: Colors.buttonLight}}
+                thumbColor={filters.includeNoPrice ? Colors.button : Colors.buttonOffLight}
+              />
+            </View>
             <View style={styles.subtypeContainer}>
               { (filters.propertyType === 'house' || filters.propertyType === 'land') ? renderSubtypeFilter() : <></> }
             </View>
@@ -405,6 +421,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
+  },
+  includeNoPriceSwitchContainer: {
+    flex: 1,
+    marginLeft: Layout.sideMargin,
+    marginRight: Layout.sideMargin,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   dispositionSwitchContainer: {
     width: Math.round((Layout.width - (2 * Layout.sideMargin)) / 3) - Layout.sideMargin,
