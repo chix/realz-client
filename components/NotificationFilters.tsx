@@ -20,7 +20,6 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
   submitFilters: (key: number, filters: Filters) => Promise<void>
 }) {
   const [filters, setFilters] = useState(filtersInput ?? {
-    editmode: true,
     advertType: 'sale',
     propertyType: 'flat',
     minPrice: 0,
@@ -61,6 +60,7 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
         'other': false,
       }
     },
+    compactView: false,
   });
   const [minPrice, setMinPrice] = useState(filtersInput?.minPrice ?? 0);
   const [maxPrice, setMaxPrice] = useState(filtersInput?.maxPrice ?? 0);
@@ -108,29 +108,37 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
   };
 
   const onMinPriceChange = (value: number) => {
-    setMinPrice(value);
+    const newFilters = mergeFilters({minPrice: value});
+    setFilters(newFilters);
   };
 
   const onMinPriceChangeComplete = (value: number) => {
     clearTimeout(minPriceSliderTimeoutId)
-    minPriceSliderTimeoutId = setTimeout(() => {
-      const f = JSON.parse(JSON.stringify(filters));
-      f.minPrice = value;
-      persistFilters(f);
-    }, 50)
+
+    minPriceSliderTimeoutId = setTimeout(
+      () => persistFilters({minPrice: value}, mergeFilters({minPrice})).then(
+        () => setMinPrice(value),
+        () => {}
+      ),
+      50
+    );
   };
 
   const onMaxPriceChange = (value: number) => {
-    setMaxPrice(value);
+    const newFilters = mergeFilters({maxPrice: value});
+    setFilters(newFilters);
   };
 
   const onMaxPriceChangeComplete = (value: number) => {
     clearTimeout(maxPriceSliderTimeoutId)
-    maxPriceSliderTimeoutId = setTimeout(() => {
-      const f = JSON.parse(JSON.stringify(filters));
-      f.maxPrice = value;
-      persistFilters(f);
-    }, 50)
+
+    maxPriceSliderTimeoutId = setTimeout(
+      () => persistFilters({maxPrice: value}, mergeFilters({maxPrice})).then(
+        () => setMaxPrice(value),
+        () => {},
+      ),
+      50
+    );
   }
 
   const onIncludeNoPriceChange = (value: boolean) => {
@@ -155,19 +163,20 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
     persistFilters(f);
   };
 
-  const mergeFilters = (newFilters: FiltersPartial) => {
-    return {...filters, ...newFilters};
+  const mergeFilters = (partial: FiltersPartial) => {
+    return {...filters, ...partial};
   };
 
-  const persistFilters = (newFilters: FiltersPartial) => {
-    const filters = mergeFilters(newFilters);
+  const persistFilters = (partial: FiltersPartial, oldFilters?: Filters) => {
+    const fallback = oldFilters ?? JSON.parse(JSON.stringify(filters))
+    const newFilters = mergeFilters(partial);
 
-    submitFilters(filtersKey, filters).then(
-      () => setFilters(filters),
-      () => {
-        setMinPrice(filtersInput?.minPrice ?? 0)
-        setMaxPrice(filtersInput?.maxPrice ?? 0)
-      });
+    setFilters(newFilters);
+
+    return submitFilters(filtersKey, newFilters).then(
+      () => {},
+      () => setFilters(fallback)
+    );
   };
 
   const renderDispositionFilter = () => {
