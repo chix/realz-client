@@ -18,7 +18,8 @@ SplashScreen.preventAutoHideAsync();
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
   }),
@@ -49,10 +50,10 @@ export default function RootLayout() {
       (lastNotificationResponse.notification.request.content.data || lastNotificationResponse.notification.request.content.dataString)
     ) {
       const data = lastNotificationResponse.notification.request.content.data ?? JSON.parse(lastNotificationResponse.notification.request.content.dataString ?? '{}');
-      const id = data?.id;
+      const id = data?.id as number;
       const type = data?.type as AdvertTypeEnum;
       if (id && type) {
-        router.navigate({ pathname: `/${type}/[id]`, params: { id }})
+        router.push({ pathname: `/${type}/[id]`, params: { id }})
       }
     }
   }, [lastNotificationResponse, isLoadingComplete]);

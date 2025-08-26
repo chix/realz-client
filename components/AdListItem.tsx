@@ -10,7 +10,7 @@ import { currencyFormatter } from '@/services/utils';
 
 export default function AdListItem({ advertType, item }: { advertType: AdvertTypeEnum, item: Advert }) {
   return (
-    <TouchableOpacity onPress={() => router.navigate({ pathname: `/${advertType}/[id]`, params: { id: item.id}})}>
+    <TouchableOpacity onPress={() => router.push({ pathname: `/${advertType}/[id]`, params: { id: item.id}})}>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>{(item.title.length > 28) ? item.title.substring(0, 28) + '...' : item.title}</Text>

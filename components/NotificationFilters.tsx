@@ -69,8 +69,8 @@ export default function NotificationFilters({ filtersInput, filtersKey, submitFi
   const salePriceStep = 100000;
   const rentPriceLimit = 50000;
   const rentPriceStep = 1000;
-  let minPriceSliderTimeoutId: NodeJS.Timeout;
-  let maxPriceSliderTimeoutId: NodeJS.Timeout;
+  let minPriceSliderTimeoutId: ReturnType<typeof setTimeout>;
+  let maxPriceSliderTimeoutId: ReturnType<typeof setTimeout>;
 
   const onAdvertTypeChange = (value: string) => {
     persistFilters({advertType: value});
